@@ -151,7 +151,7 @@ async function getStream() {
     state.streams.push(screen);
     const surface = screen.getVideoTracks()[0].getSettings().displaySurface;
     if (surface === 'monitor') {
-      toast('🖥 Recording the entire screen — switch to the app you\'re teaching from; use this tab to annotate.', 5000);
+      toast('🖥 Entire screen selected — heads-up: the floating panel will be visible in your video. Sharing a window or tab is cleaner.', 6000);
     }
     const tracks = [...screen.getVideoTracks(), ...screen.getAudioTracks()];
     if (wantMic) {
@@ -205,6 +205,10 @@ async function startRecording() {
   // onto the Studio canvas, and the canvas is what gets recorded.
   const canvasStream = await Studio.start({ sourceStream: stream, camStream, mode: state.mode });
   const output = new MediaStream([...canvasStream.getVideoTracks(), ...stream.getAudioTracks()]);
+
+  if (state.mode === 'screen' && 'documentPictureInPicture' in window) {
+    toast('📌 Tap the pin to pop your tools into a floating panel — it stays on top while you present', 7000);
+  }
 
   const mime = pickMime();
   state.chunks = [];

@@ -33,6 +33,7 @@ Built for educators and explainer videos. Everything below is composited live on
 | 🫧 Bubble styles | Ring colors, gradients (sunset, ocean, candy), 🌈 rainbow, ✨ glow, 🔥 animated fire, ☁️ cloud — plus a custom color picker |
 | 😎 Face filters | Clear skin, background blur, warm, cool, B&W, vintage, vivid, neon, comic — applied to your camera bubble (or the whole frame in camera mode) |
 | 🎬 Keeps rolling | A worker-based ticker keeps compositing even when the tab is in the background while you present another app |
+| 📌 Pop-out presenter panel | One tap floats your tools + a live preview in a small always-on-top window (Document Picture-in-Picture). Present any app full-screen, draw on the panel's preview — annotations land in the video, the panel never does. Includes pause/stop and the timer, so you never have to switch back |
 
 ### ✂️ Built-in editor — no other software needed
 
@@ -45,7 +46,7 @@ Open any recording from your library and tap **Trim & Edit**:
 | 🎵 Background music | Pick any audio file from your device; independent music/voice volume sliders and an automatic fade-out at the end |
 | 💾 Export | Re-renders in your browser and saves straight back to your library — then share, download, or edit again |
 
-> **Recording tip:** in Chrome's share picker, choose the **tab or window of the content you're teaching** — not the MaherCast window itself (that creates a mirror-tunnel effect). MaherCast's own tab is automatically excluded from the picker. The studio preview shows exactly what's being recorded while you annotate on top of it.
+> **The presenter workflow:** ① share the **tab or window of your teaching content** in Chrome's picker (never MaherCast itself — that creates a mirror tunnel; MaherCast's own tab is excluded automatically) → ② tap **📌** to pop the tools into the floating panel → ③ present your content full-screen and annotate from the panel. Everything you draw is baked into the video; the panel and toolbar are not.
 
 > **Note:** iOS doesn't allow browser screen capture in any browser (Apple restriction) — on iPhone, MaherCast automatically switches to camera mode. Share links appear when you run the local server (below); the hosted version covers recording, library, download, and native sharing.
 

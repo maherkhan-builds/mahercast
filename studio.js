@@ -51,12 +51,20 @@ const Studio = (() => {
     camFilter: 'none',                  // camera-mode full-frame filter
     captions: { on: false, text: '', rec: null, supported: false },
     dragging: null,
+    pip: null,
   };
 
   /* ---------- geometry helpers ---------- */
+  // Works for both the main stage and the pop-out panel's mini preview.
   function pt(e) {
-    const r = S.canvas.getBoundingClientRect();
+    const r = e.currentTarget.getBoundingClientRect();
     return { x: (e.clientX - r.left) * (S.W / r.width), y: (e.clientY - r.top) * (S.H / r.height) };
+  }
+
+  function docs() {
+    const d = [document];
+    if (S.pip) d.push(S.pip.win.document);
+    return d;
   }
   const scale = () => S.W / 1280;
 
@@ -348,6 +356,13 @@ const Studio = (() => {
     if (S.draft) drawAnnotation(ctx, S.draft);
     drawBubble(ctx);
     drawCaptions(ctx);
+    if (S.pip) {
+      try {
+        S.pip.ctx.drawImage(S.canvas, 0, 0);
+        S.pip.timerEl.textContent = document.getElementById('timer').textContent;
+        S.pip.pauseEl.textContent = document.getElementById('pauseBtn').textContent;
+      } catch {}
+    }
   }
 
   function loop() {
@@ -388,7 +403,7 @@ const Studio = (() => {
     const pop = document.getElementById('stylePop');
     if (!pop.hidden) pop.hidden = true; // tapping the canvas dismisses the style panel
     const p = pt(e);
-    S.canvas.setPointerCapture(e.pointerId);
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
     const b = S.bubble;
     const r = b.r * Math.min(S.W, S.H);
     if (S.tool === 'move') {
@@ -450,6 +465,16 @@ const Studio = (() => {
   }
 
   function openNoteInput(e, p, type) {
+    if (S.pip && e.view !== window) {
+      // tapped on the pop-out panel's preview — type in the panel itself
+      const bar = S.pip.win.document.getElementById('pipNoteBar');
+      const input = bar.querySelector('input');
+      bar.hidden = false;
+      input.value = '';
+      input.dataset.x = p.x; input.dataset.y = p.y; input.dataset.type = type;
+      setTimeout(() => input.focus(), 50);
+      return;
+    }
     const input = document.getElementById('noteInput');
     const r = S.canvas.getBoundingClientRect();
     input.hidden = false;
@@ -460,8 +485,7 @@ const Studio = (() => {
     setTimeout(() => input.focus(), 50);
   }
 
-  function commitNote() {
-    const input = document.getElementById('noteInput');
+  function commitNoteInput(input, hideEl) {
     const text = input.value.trim();
     if (text) {
       S.annotations.push({
@@ -470,15 +494,115 @@ const Studio = (() => {
         color: S.penColor,
       });
     }
-    input.hidden = true;
+    (hideEl || input).hidden = true;
     input.value = '';
+  }
+
+  function commitNote() { commitNoteInput(document.getElementById('noteInput')); }
+
+  /* ---------- shared tool actions (main toolbar + pop-out panel) ---------- */
+  function doUndo() { S.annotations.pop(); }
+  function doClear() { S.annotations = []; S.spotlight = null; }
+  function toggleCC() {
+    S.captions.on = !S.captions.on;
+    for (const doc of docs()) {
+      const b = doc.getElementById('ccBtn');
+      if (b) b.classList.toggle('active', S.captions.on);
+    }
+    if (S.captions.on) startCaptions(); else stopCaptions();
+  }
+
+  /* ---------- pop-out presenter panel (Document Picture-in-Picture) ---------- */
+  async function openPanel() {
+    if (!('documentPictureInPicture' in window)) return;
+    if (S.pip) { try { S.pip.win.close(); } catch {} S.pip = null; return; }
+    const pw = 400;
+    const ph = Math.round(pw * S.H / S.W);
+    const win = await documentPictureInPicture.requestWindow({ width: pw, height: ph + 130 });
+    const doc = win.document;
+    doc.head.innerHTML = `<meta charset="utf-8"><style>
+      *{box-sizing:border-box;margin:0}
+      body{background:#0c0d12;color:#fff;font-family:system-ui,sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;user-select:none}
+      .hd{display:flex;align-items:center;gap:8px;padding:7px 10px;flex-shrink:0}
+      .dot{width:9px;height:9px;border-radius:50%;background:#e5484d;animation:bl 1.2s infinite}
+      @keyframes bl{50%{opacity:.2}}
+      .tm{font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
+      .sp{flex:1}
+      .hd button{border:0;border-radius:99px;color:#fff;font:inherit;font-size:13px;padding:6px 12px;cursor:pointer;background:rgba(255,255,255,.14)}
+      .hd .stop{background:#e5484d;font-weight:700}
+      canvas{width:100%;display:block;background:#000;touch-action:none;flex:1;min-height:0;object-fit:contain}
+      .tools{display:flex;flex-wrap:wrap;gap:4px;padding:7px 8px;align-items:center;flex-shrink:0}
+      .tools button{width:35px;height:35px;border-radius:50%;border:0;background:rgba(255,255,255,.09);color:#fff;font-size:15px;cursor:pointer}
+      .tools button.active{background:#625df5}
+      .tools #ccBtn{font-size:12px;font-weight:800}
+      .tools input[type=color]{width:26px;height:26px;border:0;border-radius:50%;padding:0;background:none;cursor:pointer}
+      .nb{display:flex;gap:6px;padding:0 8px 8px;flex-shrink:0}
+      .nb[hidden]{display:none}
+      .nb input{flex:1;border:2px solid #625df5;border-radius:8px;background:#1c1d28;color:#fff;padding:7px 9px;font:inherit;font-size:13px;outline:none}
+    </style>`;
+    doc.body.innerHTML = `
+      <div class="hd">
+        <span class="dot"></span><span class="tm" id="pipTimer">0:00</span><span class="sp"></span>
+        <button id="pipPause" title="Pause / resume">⏸</button>
+        <button class="stop" id="pipStop">⏹ Stop</button>
+      </div>
+      <canvas id="pipStage" width="${S.W}" height="${S.H}"></canvas>
+      <div class="tools">
+        <button class="tl" data-tool="move" title="Move">🖐</button>
+        <button class="tl" data-tool="pen" title="Magic pencil">✏️</button>
+        <button class="tl" data-tool="rect" title="Rectangle">▭</button>
+        <button class="tl" data-tool="arrow" title="Arrow">➤</button>
+        <button class="tl" data-tool="note" title="Note — tap preview to place">📝</button>
+        <button class="tl" data-tool="speech" title="Speech bubble">💬</button>
+        <button class="tl" data-tool="spot" title="Focus spotlight">🔦</button>
+        <input type="color" id="pipColor" title="Ink color">
+        <button id="pipUndo" title="Undo">↩️</button>
+        <button id="pipClear" title="Clear all">🧹</button>
+        <button id="ccBtn" title="Live captions">CC</button>
+      </div>
+      <div class="nb" id="pipNoteBar" hidden><input placeholder="Type your note, then Enter…" maxlength="120"></div>`;
+
+    const cv = doc.getElementById('pipStage');
+    cv.addEventListener('pointerdown', onDown);
+    cv.addEventListener('pointermove', onMove);
+    cv.addEventListener('pointerup', onUp);
+    cv.addEventListener('pointercancel', onUp);
+    doc.querySelectorAll('.tl').forEach(b => b.addEventListener('click', () => setTool(b.dataset.tool)));
+    doc.getElementById('pipUndo').addEventListener('click', doUndo);
+    doc.getElementById('pipClear').addEventListener('click', doClear);
+    doc.getElementById('ccBtn').addEventListener('click', toggleCC);
+    const colorInp = doc.getElementById('pipColor');
+    colorInp.value = S.penColor;
+    colorInp.addEventListener('input', e => {
+      S.penColor = e.target.value;
+      document.getElementById('penColor').value = e.target.value;
+    });
+    doc.getElementById('pipPause').addEventListener('click', () => document.getElementById('pauseBtn').click());
+    doc.getElementById('pipStop').addEventListener('click', () => document.getElementById('stopBtn').click());
+    const nInput = doc.querySelector('#pipNoteBar input');
+    nInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') commitNoteInput(nInput, doc.getElementById('pipNoteBar'));
+      if (e.key === 'Escape') doc.getElementById('pipNoteBar').hidden = true;
+    });
+    win.addEventListener('pagehide', () => { S.pip = null; });
+
+    S.pip = {
+      win, canvas: cv, ctx: cv.getContext('2d'),
+      timerEl: doc.getElementById('pipTimer'),
+      pauseEl: doc.getElementById('pipPause'),
+    };
+    setTool(S.tool);
+    doc.getElementById('ccBtn').classList.toggle('active', S.captions.on);
   }
 
   /* ---------- toolbar wiring ---------- */
   function setTool(tool) {
     S.tool = tool;
-    document.querySelectorAll('#toolbar .tl').forEach(b => b.classList.toggle('active', b.dataset.tool === tool));
-    S.canvas.style.cursor = tool === 'move' ? 'grab' : 'crosshair';
+    for (const doc of docs()) {
+      doc.querySelectorAll('.tl[data-tool]').forEach(b => b.classList.toggle('active', b.dataset.tool === tool));
+      const cv = doc.getElementById(doc === document ? 'stage' : 'pipStage');
+      if (cv) cv.style.cursor = tool === 'move' ? 'grab' : 'crosshair';
+    }
   }
 
   function buildStylePopover() {
@@ -550,18 +674,12 @@ const Studio = (() => {
 
     document.querySelectorAll('#toolbar .tl').forEach(b =>
       b.addEventListener('click', () => setTool(b.dataset.tool)));
-    document.getElementById('undoBtn').addEventListener('click', () => S.annotations.pop());
-    document.getElementById('clearBtn').addEventListener('click', () => {
-      S.annotations = [];
-      S.spotlight = null;
-    });
+    document.getElementById('undoBtn').addEventListener('click', doUndo);
+    document.getElementById('clearBtn').addEventListener('click', doClear);
     document.getElementById('penColor').addEventListener('input', e => { S.penColor = e.target.value; });
-
-    const ccBtn = document.getElementById('ccBtn');
-    ccBtn.addEventListener('click', () => {
-      S.captions.on = !S.captions.on;
-      ccBtn.classList.toggle('active', S.captions.on);
-      if (S.captions.on) startCaptions(); else stopCaptions();
+    document.getElementById('ccBtn').addEventListener('click', toggleCC);
+    document.getElementById('pipBtn').addEventListener('click', () => {
+      openPanel().catch(() => { if (typeof toast === 'function') toast('Pop-out panel unavailable in this browser'); });
     });
 
     const styleBtn = document.getElementById('styleBtn');
@@ -629,6 +747,7 @@ const Studio = (() => {
     S.captions.supported = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
     document.getElementById('ccBtn').hidden = !S.captions.supported;
     document.getElementById('ccBtn').classList.remove('active');
+    document.getElementById('pipBtn').hidden = !('documentPictureInPicture' in window);
     setTool('move');
     document.getElementById('stylePop').hidden = true;
 
@@ -652,6 +771,7 @@ const Studio = (() => {
   function stop() {
     S.running = false;
     cancelAnimationFrame(S.raf);
+    if (S.pip) { try { S.pip.win.close(); } catch {} S.pip = null; }
     if (S.ticker) { S.ticker.terminate(); S.ticker = null; }
     stopCaptions();
     S.captions.on = false;
