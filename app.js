@@ -127,38 +127,6 @@ if (!supportsScreen) {
   setMode('camera');
 }
 
-/* ---------- camera bubble (draggable) ---------- */
-const bubble = $('bubble');
-let bubbleStream = null;
-
-async function showBubble() {
-  bubbleStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640 } });
-  $('bubbleVideo').srcObject = bubbleStream;
-  bubble.hidden = false;
-}
-function hideBubble() {
-  if (bubbleStream) bubbleStream.getTracks().forEach(t => t.stop());
-  bubbleStream = null;
-  bubble.hidden = true;
-}
-(() => {
-  let sx, sy, bx, by, dragging = false;
-  bubble.addEventListener('pointerdown', e => {
-    dragging = true;
-    sx = e.clientX; sy = e.clientY;
-    const r = bubble.getBoundingClientRect();
-    bx = r.left; by = r.top;
-    bubble.setPointerCapture(e.pointerId);
-  });
-  bubble.addEventListener('pointermove', e => {
-    if (!dragging) return;
-    bubble.style.left = Math.max(0, Math.min(innerWidth - 120, bx + e.clientX - sx)) + 'px';
-    bubble.style.top = Math.max(0, Math.min(innerHeight - 120, by + e.clientY - sy)) + 'px';
-    bubble.style.bottom = 'auto';
-  });
-  bubble.addEventListener('pointerup', () => { dragging = false; });
-})();
-
 /* ---------- recording ---------- */
 async function countdown() {
   const el = $('countdown'), num = $('countNum');
@@ -216,15 +184,24 @@ async function startRecording() {
     return;
   }
 
+  let camStream = null;
   if (state.mode === 'screen' && $('bubbleToggle').checked) {
-    try { await showBubble(); } catch { toast('Camera bubble unavailable'); }
+    try {
+      camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640 } });
+      state.streams.push(camStream);
+    } catch { toast('Camera bubble unavailable'); }
   }
 
   if (state.mode === 'screen') await countdown();
 
+  // Everything (screen/camera + bubble + annotations + captions) is composited
+  // onto the Studio canvas, and the canvas is what gets recorded.
+  const canvasStream = await Studio.start({ sourceStream: stream, camStream, mode: state.mode });
+  const output = new MediaStream([...canvasStream.getVideoTracks(), ...stream.getAudioTracks()]);
+
   const mime = pickMime();
   state.chunks = [];
-  state.recorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+  state.recorder = new MediaRecorder(output, mime ? { mimeType: mime } : undefined);
   state.recorder.ondataavailable = e => { if (e.data.size) state.chunks.push(e.data); };
   state.recorder.onstop = finishRecording;
   // Stop when user ends screen share from the browser's own UI
@@ -250,10 +227,10 @@ async function finishRecording() {
   const mime = state.recorder.mimeType || 'video/webm';
   const blob = new Blob(state.chunks, { type: mime });
   state.chunks = [];
+  Studio.stop();
   state.streams.forEach(s => s.getTracks().forEach(t => t.stop()));
   state.streams = [];
   if (state.audioCtx) { state.audioCtx.close().catch(() => {}); state.audioCtx = null; }
-  hideBubble();
   $('recBar').hidden = true;
   $('recordBtn').disabled = false;
   $('pauseBtn').textContent = '⏸';
