@@ -144,8 +144,15 @@ async function getStream() {
     const screen = await navigator.mediaDevices.getDisplayMedia({
       video: { frameRate: 30 },
       audio: true, // system/tab audio where the browser allows it
+      selfBrowserSurface: 'exclude',  // keep MaherCast's own tab out of the picker
+      surfaceSwitching: 'include',    // let the user switch shared tab mid-recording
+      systemAudio: 'include',
     });
     state.streams.push(screen);
+    const surface = screen.getVideoTracks()[0].getSettings().displaySurface;
+    if (surface === 'monitor') {
+      toast('🖥 Recording the entire screen — switch to the app you\'re teaching from; use this tab to annotate.', 5000);
+    }
     const tracks = [...screen.getVideoTracks(), ...screen.getAudioTracks()];
     if (wantMic) {
       try {
@@ -192,7 +199,7 @@ async function startRecording() {
     } catch { toast('Camera bubble unavailable'); }
   }
 
-  if (state.mode === 'screen') await countdown();
+  if ($('countToggle').checked) await countdown();
 
   // Everything (screen/camera + bubble + annotations + captions) is composited
   // onto the Studio canvas, and the canvas is what gets recorded.
@@ -390,6 +397,23 @@ $('shareLinkBtn').addEventListener('click', async () => {
     btn.textContent = '🔗 Copy share link';
     btn.disabled = false;
   }
+});
+
+$('editBtn').addEventListener('click', () => {
+  const rec = state.current;
+  if (!rec) return;
+  closePlayer();
+  Editor.open(rec, async ({ name, blob, mime, duration }) => {
+    const edited = {
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+      name, blob, mime, duration,
+      createdAt: Date.now(),
+      shareId: null,
+    };
+    edited.thumb = await makeThumb(blob);
+    await dbPut(edited);
+    await renderLibrary();
+  });
 });
 
 $('deleteBtn').addEventListener('click', async () => {
