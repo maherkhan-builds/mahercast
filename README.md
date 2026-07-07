@@ -19,6 +19,21 @@ Works as an installable PWA — open the link on your phone or desktop and choos
 | 👀 Watch pages | View counts, emoji reactions (👍 ❤️ 🔥 😂 👏), and comments |
 | 📱 PWA | Installs to your home screen like a native app |
 
+### 🪄 Studio tools — annotate *while* you record
+
+Built for educators and explainer videos. Everything below is composited live onto the recording itself, so viewers see exactly what you drew — no editing needed.
+
+| Tool | Details |
+|---|---|
+| ✏️ Magic pencil | Glowing freehand pen — circle and underline anything on screen; pick any ink color |
+| ➤ ▭ Shapes | Arrows and rectangles with a soft glow to point at what matters |
+| 📝 💬 Notes | Tap to type a note box or speech bubble; undo (↩️) or clear all (🧹) the moment you move to the next topic |
+| 🔦 Focus spotlight | Drag over an area — the rest of the screen turns to frosted glass while your selection stays crystal clear; drag to move it, tap to remove |
+| 💬 Live captions | One-tap CC button — your speech becomes captions burned into the video (Web Speech API) |
+| 🫧 Bubble styles | Ring colors, gradients (sunset, ocean, candy), 🌈 rainbow, ✨ glow, 🔥 animated fire, ☁️ cloud — plus a custom color picker |
+| 😎 Face filters | Clear skin, background blur, warm, cool, B&W, vintage, vivid, neon, comic — applied to your camera bubble (or the whole frame in camera mode) |
+| 🎬 Keeps rolling | A worker-based ticker keeps compositing even when the tab is in the background while you present another app |
+
 > **Note:** iOS doesn't allow browser screen capture in any browser (Apple restriction) — on iPhone, MaherCast automatically switches to camera mode. Share links appear when you run the local server (below); the hosted version covers recording, library, download, and native sharing.
 
 ## 🚀 Run the full platform locally

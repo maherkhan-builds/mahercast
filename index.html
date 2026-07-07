@@ -40,6 +40,7 @@
       <button class="record-btn" id="recordBtn">
         <span class="dot"></span> Start Recording
       </button>
+      <p class="studio-hint">🪄 While recording: magic pencil, arrows, notes, focus spotlight, live captions, bubble styles &amp; face filters — all baked into your video.</p>
       <p class="unsupported" id="unsupportedMsg" hidden>
         ⚠️ Screen capture isn't available in this browser (iPhones don't allow it).
         Camera mode has you covered.
@@ -64,9 +65,33 @@
     <button id="stopBtn" class="stop" title="Stop">⏹ Stop</button>
   </div>
 
-  <!-- draggable camera bubble -->
-  <div class="bubble" id="bubble" hidden>
-    <video id="bubbleVideo" autoplay muted playsinline></video>
+  <!-- studio: live composited preview + annotation tools -->
+  <div class="studio" id="studio" hidden>
+    <div class="stage-wrap"><canvas id="stage"></canvas></div>
+    <div class="toolbar" id="toolbar">
+      <button class="tl active" data-tool="move" title="Move / drag bubble & spotlight">🖐</button>
+      <button class="tl" data-tool="pen" title="Magic pencil — draw & circle">✏️</button>
+      <button class="tl" data-tool="rect" title="Rectangle">▭</button>
+      <button class="tl" data-tool="arrow" title="Arrow">➤</button>
+      <button class="tl" data-tool="note" title="Note box — tap to type">📝</button>
+      <button class="tl" data-tool="speech" title="Speech bubble — tap to type">💬</button>
+      <button class="tl" data-tool="spot" title="Focus spotlight — drag the area to keep clear">🔦</button>
+      <input type="color" id="penColor" value="#ffd400" title="Ink color">
+      <span class="tb-sep"></span>
+      <button id="undoBtn" title="Undo last">↩️</button>
+      <button id="clearBtn" title="Clear all annotations">🧹</button>
+      <button id="ccBtn" title="Live captions on/off">CC</button>
+      <button id="styleBtn" title="Bubble style & face filters">🎨</button>
+    </div>
+    <div class="popover" id="stylePop" hidden>
+      <div id="ringSection">
+        <h3>Bubble ring</h3>
+        <div class="chip-row" id="ringRow"></div>
+      </div>
+      <h3>Face filter</h3>
+      <div class="chip-row" id="filterRow"></div>
+    </div>
+    <input id="noteInput" class="note-input" placeholder="Type, then Enter…" maxlength="120" hidden>
   </div>
 
   <!-- player modal -->
@@ -99,6 +124,7 @@
 
   <div class="toast" id="toast" hidden></div>
 
+  <script src="studio.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
