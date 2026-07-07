@@ -1,0 +1,9 @@
+# private keys / certificates — never commit
+*.pem
+
+# uploaded recordings live only on your machine
+recordings/
+
+node_modules/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>MaherCast — Screen Recorder</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#625df5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="logo">🎥 MaherCast</div>
+    <div class="tagline">Record. Share. Locally.</div>
+  </header>
+
+  <main>
+    <section class="card recorder-card">
+      <div class="tabs" id="modeTabs">
+        <button class="tab active" data-mode="screen" id="tabScreen">🖥️ Screen</button>
+        <button class="tab" data-mode="camera" id="tabCamera">🤳 Camera</button>
+      </div>
+
+      <p class="mode-hint" id="modeHint">Records your screen — switch apps, everything is captured.</p>
+
+      <div class="toggles">
+        <label class="toggle">
+          <input type="checkbox" id="micToggle" checked>
+          <span class="slider"></span> Microphone
+        </label>
+        <label class="toggle" id="bubbleToggleWrap">
+          <input type="checkbox" id="bubbleToggle">
+          <span class="slider"></span> Camera bubble
+        </label>
+      </div>
+
+      <button class="record-btn" id="recordBtn">
+        <span class="dot"></span> Start Recording
+      </button>
+      <p class="unsupported" id="unsupportedMsg" hidden>
+        ⚠️ Screen capture isn't available in this browser (iPhones don't allow it).
+        Camera mode has you covered.
+      </p>
+    </section>
+
+    <section class="library">
+      <h2>My Library <span id="libCount"></span></h2>
+      <div class="grid" id="libraryGrid"></div>
+      <p class="empty" id="libEmpty">No recordings yet. Hit that big purple button! 💜</p>
+    </section>
+  </main>
+
+  <!-- countdown -->
+  <div class="countdown" id="countdown" hidden><span id="countNum">3</span></div>
+
+  <!-- recording control bar -->
+  <div class="rec-bar" id="recBar" hidden>
+    <span class="rec-dot"></span>
+    <span class="timer" id="timer">0:00</span>
+    <button id="pauseBtn" title="Pause">⏸</button>
+    <button id="stopBtn" class="stop" title="Stop">⏹ Stop</button>
+  </div>
+
+  <!-- draggable camera bubble -->
+  <div class="bubble" id="bubble" hidden>
+    <video id="bubbleVideo" autoplay muted playsinline></video>
+  </div>
+
+  <!-- player modal -->
+  <div class="modal" id="playerModal" hidden>
+    <div class="modal-box">
+      <div class="modal-head">
+        <input class="name-input" id="nameInput" value="">
+        <button class="close" id="closeModal">✕</button>
+      </div>
+      <video id="player" controls playsinline></video>
+      <div class="player-row">
+        <label>Speed
+          <select id="speedSel">
+            <option value="0.5">0.5×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2×</option>
+          </select>
+        </label>
+        <span class="rec-meta" id="recMeta"></span>
+      </div>
+      <div class="actions">
+        <button class="action primary" id="shareLinkBtn">🔗 Copy share link</button>
+        <button class="action" id="shareFileBtn">📤 Share</button>
+        <button class="action" id="downloadBtn">⬇️ Download</button>
+        <button class="action danger" id="deleteBtn">🗑 Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
