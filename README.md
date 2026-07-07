@@ -1,10 +1,35 @@
-# 🎥 MaherCast — Your Own Loom, Running Locally
+<div align="center">
 
-**A local-first, privacy-friendly screen recording platform.** Record your screen or camera right from the browser, keep a library of recordings on your device, and share instantly with anyone on your Wi-Fi — complete with Loom-style watch pages, view counts, emoji reactions, and comments. No accounts, no cloud, no subscription.
+[![MaherCast](https://readme-typing-svg.demolab.com?font=Montserrat&weight=800&size=32&duration=3000&pause=800&color=A78BFA&center=true&vCenter=true&width=700&height=60&lines=🎥+MaherCast;Your+Own+Loom%2C+Running+Locally;Record+·+Annotate+·+Edit+·+Share;No+Cloud.+No+Accounts.+No+Subscription.)](https://maherkhan-builds.github.io/mahercast/)
 
-**▶️ Try it now:** https://maherkhan-builds.github.io/mahercast/
+**A local-first, privacy-friendly screen recording studio in your browser**
 
-Works as an installable PWA — open the link on your phone or desktop and choose **Add to Home Screen**.
+[![▶️ Try It Now](https://img.shields.io/badge/▶️_TRY_IT_NOW-Live_App-a78bfa?style=for-the-badge)](https://maherkhan-builds.github.io/mahercast/)
+[![Built with Claude Code](https://img.shields.io/badge/Built_with-Claude_Code-cc785c?style=for-the-badge)](https://claude.com/claude-code)
+[![PWA](https://img.shields.io/badge/PWA-Installable-38e8a5?style=for-the-badge)](#-run-the-full-platform-locally)
+
+</div>
+
+---
+
+## 🔗 Live App
+
+**▶️ https://maherkhan-builds.github.io/mahercast/** — works on desktop, Android, and iOS. Installable as a PWA: open the link and choose **Add to Home Screen**.
+
+## 🎯 The Problem
+
+Loom is brilliant — until you hit the paywall, the 5-minute free cap, and the fact that every private recording of your screen lives on someone else's cloud. Educators, consultants, and teams that record sensitive client work need Loom's workflow **without the subscription and without uploading anything**.
+
+## 💡 The Solution
+
+MaherCast is a complete recording studio that runs entirely on your own machine: record screen or camera, **annotate live while recording** (glowing pen, spotlight, captions), trim and add attention-zooms in a built-in editor, keep a private library in your browser, and share watch links — with view counts, emoji reactions, and comments — over your own Wi-Fi via a zero-dependency local server. **No accounts, no cloud, no subscription.**
+
+## 👥 Who It's For
+
+- **Educators & course creators** narrating lessons with live on-screen annotation
+- **Consultants & freelancers** sending clients walkthrough videos of private work
+- **Teams on a LAN** who want Loom-style share links without data leaving the building
+- **Privacy-conscious creators** who want their recordings stored on their device, full stop
 
 ## ✨ Features
 
@@ -87,6 +112,16 @@ Built by **[Maher Khan](https://digimarketingstudio.com)** — AI educator, no-c
 
 Part of the **Maher Magic** series of AI & web apps. ✨
 
+## 🤖 How It Was Built
+
+Designed and built end-to-end with **[Claude Code](https://claude.com/claude-code)** (Anthropic) — from the MediaRecorder capture pipeline and live annotation compositor to the zero-dependency Node.js share server.
+
 ## 📄 License
 
 [MIT](LICENSE) — free to use, learn from, and build on.
+
+<div align="center">
+
+`screen-recorder` `loom-alternative` `privacy-first` `local-first` `pwa` `screen-recording` `video-annotation` `web-audio-api` `mediarecorder` `claude-code`
+
+</div>
