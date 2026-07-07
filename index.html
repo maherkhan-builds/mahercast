@@ -35,7 +35,12 @@
           <input type="checkbox" id="bubbleToggle">
           <span class="slider"></span> Camera bubble
         </label>
+        <label class="toggle">
+          <input type="checkbox" id="countToggle" checked>
+          <span class="slider"></span> 3-2-1 countdown
+        </label>
       </div>
+      <p class="mode-hint" id="pickerTip">💡 In Chrome's picker, choose the <b>tab or window you're teaching from</b> — not the MaherCast window itself (recording MaherCast's own preview creates a mirror-tunnel effect).</p>
 
       <button class="record-btn" id="recordBtn">
         <span class="dot"></span> Start Recording
@@ -84,6 +89,7 @@
       <button id="styleBtn" title="Bubble style & face filters">🎨</button>
     </div>
     <div class="popover" id="stylePop" hidden>
+      <button class="pop-close" id="stylePopClose">✕ Done</button>
       <div id="ringSection">
         <h3>Bubble ring</h3>
         <div class="chip-row" id="ringRow"></div>
@@ -115,6 +121,7 @@
       </div>
       <div class="actions">
         <button class="action primary" id="shareLinkBtn">🔗 Copy share link</button>
+        <button class="action" id="editBtn">✂️ Trim &amp; Edit</button>
         <button class="action" id="shareFileBtn">📤 Share</button>
         <button class="action" id="downloadBtn">⬇️ Download</button>
         <button class="action danger" id="deleteBtn">🗑 Delete</button>
@@ -122,9 +129,57 @@
     </div>
   </div>
 
+  <!-- editor: trim, music, attention zooms -->
+  <div class="editor" id="editor" hidden>
+    <div class="ed-head">
+      <span id="edTitle">✂️ Edit</span>
+      <button class="close" id="edClose">✕</button>
+    </div>
+    <div class="ed-stage-wrap"><canvas id="edStage"></canvas></div>
+    <div class="ed-panel">
+      <div class="ed-row">
+        <button class="ed-play" id="edPlay">▶️</button>
+        <span class="ed-time" id="edTime">0:00 / 0:00</span>
+        <span class="mut">Drag the purple handles to trim</span>
+      </div>
+      <div class="timeline" id="timeline">
+        <div class="tl-track"></div>
+        <div class="tl-trim" id="tlTrim"></div>
+        <div class="tl-zooms" id="tlZooms"></div>
+        <div class="tl-playhead" id="tlPlayhead"></div>
+        <div class="tl-handle" id="hLeft"></div>
+        <div class="tl-handle" id="hRight"></div>
+      </div>
+      <div class="ed-row">
+        <button class="ed-btn" id="addZoomBtn">🔍 Add zoom at playhead</button>
+        <select id="zoomDur" class="ed-select">
+          <option value="2">2s</option>
+          <option value="4" selected>4s</option>
+          <option value="6">6s</option>
+          <option value="10">10s</option>
+        </select>
+        <span id="zoomList"></span>
+      </div>
+      <div class="ed-row">
+        <label class="ed-btn" for="musicFile">🎵 Add background music</label>
+        <input type="file" id="musicFile" accept="audio/*" hidden>
+        <span class="mut" id="musicName">none</span>
+      </div>
+      <div class="ed-row">
+        <label class="mut vol">Music <input type="range" id="musicVol" min="0" max="100" value="25"></label>
+        <label class="mut vol">Voice <input type="range" id="voiceVol" min="0" max="100" value="100"></label>
+      </div>
+      <div class="ed-row">
+        <button class="ed-btn primary" id="exportBtn">💾 Export to library</button>
+        <span class="mut" id="exportStatus"></span>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast" hidden></div>
 
   <script src="studio.js"></script>
+  <script src="editor.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

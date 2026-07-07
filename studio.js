@@ -385,6 +385,8 @@ const Studio = (() => {
   function onDown(e) {
     if (!S.running) return;
     e.preventDefault();
+    const pop = document.getElementById('stylePop');
+    if (!pop.hidden) pop.hidden = true; // tapping the canvas dismisses the style panel
     const p = pt(e);
     S.canvas.setPointerCapture(e.pointerId);
     const b = S.bubble;
@@ -505,6 +507,7 @@ const Studio = (() => {
         S.bubble.ringName = name;
         ringRow.querySelectorAll('.ring-chip').forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
+        setTimeout(() => { pop.hidden = true; }, 350);
       };
       ringRow.appendChild(chip);
     }
@@ -529,6 +532,7 @@ const Studio = (() => {
         if (S.mode === 'camera') S.camFilter = key; else S.bubble.filter = key;
         filterRow.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
+        setTimeout(() => { pop.hidden = true; }, 350);
       };
       filterRow.appendChild(chip);
     }
@@ -566,6 +570,7 @@ const Studio = (() => {
       pop.hidden = !pop.hidden;
       if (!pop.hidden) buildStylePopover();
     });
+    document.getElementById('stylePopClose').addEventListener('click', () => { pop.hidden = true; });
 
     const noteInput = document.getElementById('noteInput');
     noteInput.addEventListener('keydown', e => {
