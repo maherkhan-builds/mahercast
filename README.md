@@ -1,0 +1,63 @@
+# 🎥 MaherCast — Your Own Loom, Running Locally
+
+**A local-first, privacy-friendly screen recording platform.** Record your screen or camera right from the browser, keep a library of recordings on your device, and share instantly with anyone on your Wi-Fi — complete with Loom-style watch pages, view counts, emoji reactions, and comments. No accounts, no cloud, no subscription.
+
+**▶️ Try it now:** https://maherkhan-builds.github.io/mahercast/
+
+Works as an installable PWA — open the link on your phone or desktop and choose **Add to Home Screen**.
+
+## ✨ Features
+
+| Feature | Details |
+|---|---|
+| 🖥️ Screen recording | Capture your screen with mic + system audio (Chrome on desktop & Android) |
+| 🤳 Camera recording | Talking-head videos on any device, including iPhone |
+| 🫧 Camera bubble | Draggable face-cam overlay while you record your screen |
+| ⏯️ Recording controls | 3-2-1 countdown, pause/resume, live timer |
+| 📚 Library | Thumbnails, durations, rename, playback speed (0.5×–2×), download, native share sheet — stored privately in your browser (IndexedDB) |
+| 🔗 Instant share links | Loom's signature move: one tap uploads to your own local server and copies a link anyone on your Wi-Fi can watch |
+| 👀 Watch pages | View counts, emoji reactions (👍 ❤️ 🔥 😂 👏), and comments |
+| 📱 PWA | Installs to your home screen like a native app |
+
+> **Note:** iOS doesn't allow browser screen capture in any browser (Apple restriction) — on iPhone, MaherCast automatically switches to camera mode. Share links appear when you run the local server (below); the hosted version covers recording, library, download, and native sharing.
+
+## 🚀 Run the full platform locally
+
+The local server unlocks share links, watch pages, reactions, and comments — your recordings never leave your network.
+
+```bash
+git clone https://github.com/maherkhan-builds/mahercast.git
+cd mahercast
+
+# One-time: create an HTTPS certificate (browsers require HTTPS for screen/camera capture)
+openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 825 -nodes -subj "/CN=mahercast"
+
+node server.js
+```
+
+Then open:
+- **On your PC:** http://localhost:8080
+- **On your phone (same Wi-Fi):** `https://<your-pc-ip>:4443` — accept the self-signed-certificate warning once, then Add to Home Screen
+
+Zero dependencies. Just Node.js and a browser.
+
+## 🛠️ How it's built
+
+- **Frontend:** Vanilla JavaScript — `MediaRecorder`, `getDisplayMedia` / `getUserMedia`, Web Audio (mic + system audio mixing), IndexedDB, Web Share API
+- **Backend:** A single-file, zero-dependency Node.js server — HTTPS for phones, upload streaming, HTTP Range support for smooth video seeking, JSON-file metadata for views/reactions/comments
+- **PWA:** Manifest + SVG icon, installable on Android, iOS, and desktop
+
+## 👤 Creator
+
+Built by **[Maher Khan](https://digimarketingstudio.com)** — AI educator, no-code builder & digital marketing strategist.
+
+- 🎓 UCLA Extension Guest Lecturer — ChatGPT, LLMs & Agentic AI
+- 🏆 LinkedIn Top Voice, North America — 3 consecutive years
+- 🛠️ 28+ AI-powered tools built · 20,000+ professionals trained
+- 💼 [LinkedIn](https://www.linkedin.com/in/mahersocialmediastrategistus) · [GitHub](https://github.com/maherkhan-builds) · [Instagram](https://www.instagram.com/social.icm) · [Book a call](https://calendly.com/digitalpoles/let-s-meet-up)
+
+Part of the **Maher Magic** series of AI & web apps. ✨
+
+## 📄 License
+
+[MIT](LICENSE) — free to use, learn from, and build on.
