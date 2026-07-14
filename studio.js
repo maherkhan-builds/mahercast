@@ -516,26 +516,37 @@ const Studio = (() => {
   async function openPanel() {
     if (!('documentPictureInPicture' in window)) return;
     if (S.pip) { try { S.pip.win.close(); } catch {} S.pip = null; return; }
-    const pw = 400;
-    const ph = Math.round(pw * S.H / S.W);
-    const win = await documentPictureInPicture.requestWindow({ width: pw, height: ph + 130 });
+    const aspect = S.W / S.H;
+    const sizes = {
+      tall: { w: 380, h: Math.round(380 / aspect) + 150 },
+      wide: { w: 620, h: Math.round(620 / aspect * 0.55) + 96 },
+    };
+    let layout = 'tall';
+    const win = await documentPictureInPicture.requestWindow({ width: sizes.tall.w, height: sizes.tall.h });
     const doc = win.document;
     doc.head.innerHTML = `<meta charset="utf-8"><style>
       *{box-sizing:border-box;margin:0}
       body{background:#0c0d12;color:#fff;font-family:system-ui,sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;user-select:none}
-      .hd{display:flex;align-items:center;gap:8px;padding:7px 10px;flex-shrink:0}
-      .dot{width:9px;height:9px;border-radius:50%;background:#e5484d;animation:bl 1.2s infinite}
+      body.wide{flex-direction:row}
+      .hd{display:flex;align-items:center;gap:6px;padding:7px 8px;flex-shrink:0}
+      body.wide .hd{flex-direction:column;height:100%;padding:8px 6px}
+      .dot{width:9px;height:9px;border-radius:50%;background:#e5484d;animation:bl 1.2s infinite;flex-shrink:0}
       @keyframes bl{50%{opacity:.2}}
-      .tm{font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
+      .tm{font-weight:700;font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
       .sp{flex:1}
-      .hd button{border:0;border-radius:99px;color:#fff;font:inherit;font-size:13px;padding:6px 12px;cursor:pointer;background:rgba(255,255,255,.14)}
+      body.wide .sp{display:none}
+      .hd button{border:0;border-radius:99px;color:#fff;font:inherit;font-size:12px;padding:6px 10px;cursor:pointer;background:rgba(255,255,255,.14);white-space:nowrap}
       .hd .stop{background:#e5484d;font-weight:700}
-      canvas{width:100%;display:block;background:#000;touch-action:none;flex:1;min-height:0;object-fit:contain}
-      .tools{display:flex;flex-wrap:wrap;gap:4px;padding:7px 8px;align-items:center;flex-shrink:0}
-      .tools button{width:35px;height:35px;border-radius:50%;border:0;background:rgba(255,255,255,.09);color:#fff;font-size:15px;cursor:pointer}
+      .hd .layout{font-size:14px;padding:6px 9px}
+      .stageWrap{flex:1;min-height:0;min-width:0;display:flex;align-items:center;justify-content:center;position:relative;padding:4px}
+      canvas{max-width:100%;max-height:100%;display:block;background:#000;touch-action:none}
+      .tip{position:absolute;top:8px;left:8px;right:8px;background:rgba(98,93,245,.92);color:#fff;font-size:11px;font-weight:600;padding:6px 9px;border-radius:8px;pointer-events:none;text-align:center}
+      .tools{display:flex;flex-wrap:wrap;gap:4px;padding:6px 8px;align-items:center;flex-shrink:0}
+      body.wide .tools{flex-direction:column;width:56px;overflow-y:auto}
+      .tools button{width:33px;height:33px;border-radius:50%;border:0;background:rgba(255,255,255,.09);color:#fff;font-size:14px;cursor:pointer;flex-shrink:0}
       .tools button.active{background:#625df5}
-      .tools #ccBtn{font-size:12px;font-weight:800}
-      .tools input[type=color]{width:26px;height:26px;border:0;border-radius:50%;padding:0;background:none;cursor:pointer}
+      .tools #ccBtn{font-size:11px;font-weight:800}
+      .tools input[type=color]{width:24px;height:24px;border:0;border-radius:50%;padding:0;background:none;cursor:pointer;flex-shrink:0}
       .nb{display:flex;gap:6px;padding:0 8px 8px;flex-shrink:0}
       .nb[hidden]{display:none}
       .nb input{flex:1;border:2px solid #625df5;border-radius:8px;background:#1c1d28;color:#fff;padding:7px 9px;font:inherit;font-size:13px;outline:none}
@@ -543,10 +554,14 @@ const Studio = (() => {
     doc.body.innerHTML = `
       <div class="hd">
         <span class="dot"></span><span class="tm" id="pipTimer">0:00</span><span class="sp"></span>
+        <button class="layout" id="pipLayout" title="Switch to a wide bar layout">↔</button>
         <button id="pipPause" title="Pause / resume">⏸</button>
-        <button class="stop" id="pipStop">⏹ Stop</button>
+        <button class="stop" id="pipStop">⏹</button>
       </div>
-      <canvas id="pipStage" width="${S.W}" height="${S.H}"></canvas>
+      <div class="stageWrap">
+        <canvas id="pipStage" width="${S.W}" height="${S.H}"></canvas>
+        <div class="tip" id="pipTip">✏️ Draw right here — it lands in your video in the same spot</div>
+      </div>
       <div class="tools">
         <button class="tl" data-tool="move" title="Move">🖐</button>
         <button class="tl" data-tool="pen" title="Magic pencil">✏️</button>
@@ -563,6 +578,9 @@ const Studio = (() => {
       <div class="nb" id="pipNoteBar" hidden><input placeholder="Type your note, then Enter…" maxlength="120"></div>`;
 
     const cv = doc.getElementById('pipStage');
+    // Canvas keeps the recording's exact aspect ratio — no letterbox dead
+    // zones, so click coordinates always map correctly onto the video.
+    cv.style.aspectRatio = `${S.W} / ${S.H}`;
     cv.addEventListener('pointerdown', onDown);
     cv.addEventListener('pointermove', onMove);
     cv.addEventListener('pointerup', onUp);
@@ -579,6 +597,15 @@ const Studio = (() => {
     });
     doc.getElementById('pipPause').addEventListener('click', () => document.getElementById('pauseBtn').click());
     doc.getElementById('pipStop').addEventListener('click', () => document.getElementById('stopBtn').click());
+    doc.getElementById('pipLayout').addEventListener('click', () => {
+      layout = layout === 'tall' ? 'wide' : 'tall';
+      doc.body.classList.toggle('wide', layout === 'wide');
+      doc.getElementById('pipLayout').textContent = layout === 'wide' ? '↕' : '↔';
+      try { win.resizeTo(sizes[layout].w, sizes[layout].h); } catch {}
+    });
+    const tip = doc.getElementById('pipTip');
+    setTimeout(() => { tip.style.display = 'none'; }, 5000);
+    cv.addEventListener('pointerdown', () => { tip.style.display = 'none'; }, { once: true });
     const nInput = doc.querySelector('#pipNoteBar input');
     nInput.addEventListener('keydown', e => {
       if (e.key === 'Enter') commitNoteInput(nInput, doc.getElementById('pipNoteBar'));
