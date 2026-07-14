@@ -58,7 +58,9 @@ Built for educators and explainer videos. Everything below is composited live on
 | 🫧 Bubble styles | Ring colors, gradients (sunset, ocean, candy), 🌈 rainbow, ✨ glow, 🔥 animated fire, ☁️ cloud — plus a custom color picker |
 | 😎 Face filters | Clear skin, background blur, warm, cool, B&W, vintage, vivid, neon, comic — applied to your camera bubble (or the whole frame in camera mode) |
 | 🎬 Keeps rolling | A worker-based ticker keeps compositing even when the tab is in the background while you present another app |
-| 📌 Pop-out presenter panel | One tap floats your tools + a live preview in a small always-on-top window (Document Picture-in-Picture). Present any app full-screen, draw on the panel's preview — annotations land in the video, the panel never does. Includes pause/stop and the timer, so you never have to switch back |
+| 📌 Pop-out presenter panel | One tap floats your tools + a live preview in a small always-on-top window (Document Picture-in-Picture). Toggle between a tall or wide layout depending on how you like to work. Draw on the panel's own preview — annotations land in the video at the same relative spot; the panel itself never does (unless you share "entire screen" instead of a window/tab) |
+
+> **Why you draw on a preview, not your real screen:** no browser (MaherCast, Loom's web recorder, or anyone else's) is allowed to paint directly on top of your desktop or another app's window — that's an OS security rule, not a limitation of this tool. The floating panel's mini preview is a live, pixel-accurate mirror of what's being recorded; whatever you draw on it lands in the exact same spot in your final video.
 
 ### ✂️ Built-in editor — no other software needed
 
