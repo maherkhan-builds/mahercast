@@ -40,7 +40,7 @@
           <span class="slider"></span> 3-2-1 countdown
         </label>
       </div>
-      <p class="mode-hint" id="pickerTip">💡 <b>How to present:</b> in Chrome's picker share the <b>tab or window you're teaching from</b> (never MaherCast itself — that makes a mirror tunnel). Then tap <b>📌</b> in the toolbar: your tools pop into a small floating panel that <b>stays on top of everything</b> while you present. Draw on its preview — annotations land in the video, the panel itself never does.</p>
+      <p class="mode-hint" id="pickerTip">💡 <b>How to present:</b> when the share window opens, choose <b>Window</b> or <b>Chrome Tab</b> and pick your teaching content — never "Entire Screen" (blocked, it causes a mirror effect) and never MaherCast itself. Then tap <b>📌</b> in the toolbar: your tools pop into a small floating panel that <b>stays on top of everything</b> while you present. Draw on its preview — annotations land in the video, the panel itself never does.</p>
 
       <button class="record-btn" id="recordBtn">
         <span class="dot"></span> Start Recording
@@ -61,6 +61,24 @@
 
   <!-- countdown -->
   <div class="countdown" id="countdown" hidden><span id="countNum">3</span></div>
+
+  <!-- blocks "Entire Screen" sharing, which causes the mirror-tunnel effect -->
+  <div class="modal" id="entireScreenModal" hidden>
+    <div class="modal-box es-box">
+      <div class="es-icon">🚫🖥️</div>
+      <h2>Please don't choose "Entire Screen"</h2>
+      <p>You picked <b>Entire Screen</b> in the share window. That captures your <b>whole monitor</b> — including this MaherCast tab and the floating tool panel — which creates an endless "screen inside a screen" effect in your recording.</p>
+      <p><b>Instead, pick one of these in the next window:</b></p>
+      <ul class="es-list">
+        <li>🪟 <b>Window</b> — choose the specific app you're teaching from</li>
+        <li>🌐 <b>Chrome Tab</b> — choose the specific browser tab you're teaching from</li>
+      </ul>
+      <div class="actions">
+        <button class="action primary" id="esRetry">🔁 Try again</button>
+        <button class="action" id="esCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <!-- recording control bar -->
   <div class="rec-bar" id="recBar" hidden>
