@@ -148,11 +148,17 @@ async function getStream() {
       surfaceSwitching: 'include',    // let the user switch shared tab mid-recording
       systemAudio: 'include',
     });
-    state.streams.push(screen);
     const surface = screen.getVideoTracks()[0].getSettings().displaySurface;
     if (surface === 'monitor') {
-      toast('🖥 Entire screen selected — heads-up: the floating panel will be visible in your video. Sharing a window or tab is cleaner.', 6000);
+      // "Entire screen" captures MaherCast's own browser window too — since that
+      // window shows a live mirror of the capture, it nests inside itself forever.
+      // A toast wasn't enough to stop this, so we hard-block it instead.
+      screen.getTracks().forEach(t => t.stop());
+      const err = new Error('ENTIRE_SCREEN_BLOCKED');
+      err.code = 'ENTIRE_SCREEN_BLOCKED';
+      throw err;
     }
+    state.streams.push(screen);
     const tracks = [...screen.getVideoTracks(), ...screen.getAudioTracks()];
     if (wantMic) {
       try {
@@ -181,12 +187,18 @@ async function getStream() {
   return cam;
 }
 
+function showEntireScreenBlock() {
+  const m = $('entireScreenModal');
+  m.hidden = false;
+}
+
 async function startRecording() {
   if (!window.MediaRecorder) { toast('MediaRecorder not supported in this browser'); return; }
   let stream;
   try {
     stream = await getStream();
   } catch (e) {
+    if (e.code === 'ENTIRE_SCREEN_BLOCKED') { showEntireScreenBlock(); return; }
     if (e.name !== 'NotAllowedError') toast('Could not start: ' + e.message);
     return;
   }
@@ -432,4 +444,6 @@ $('deleteBtn').addEventListener('click', async () => {
 });
 
 /* ---------- boot ---------- */
+$('esCancel').addEventListener('click', () => { $('entireScreenModal').hidden = true; });
+$('esRetry').addEventListener('click', () => { $('entireScreenModal').hidden = true; startRecording(); });
 openDB().then(renderLibrary).catch(e => toast('Storage error: ' + e.message));

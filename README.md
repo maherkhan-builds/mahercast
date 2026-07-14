@@ -73,7 +73,7 @@ Open any recording from your library and tap **Trim & Edit**:
 | 🎵 Background music | Pick any audio file from your device; independent music/voice volume sliders and an automatic fade-out at the end |
 | 💾 Export | Re-renders in your browser and saves straight back to your library — then share, download, or edit again |
 
-> **The presenter workflow:** ① share the **tab or window of your teaching content** in Chrome's picker (never MaherCast itself — that creates a mirror tunnel; MaherCast's own tab is excluded automatically) → ② tap **📌** to pop the tools into the floating panel → ③ present your content full-screen and annotate from the panel. Everything you draw is baked into the video; the panel and toolbar are not.
+> **The presenter workflow:** ① share the **Window or Chrome Tab of your teaching content** in Chrome's picker — MaherCast blocks "Entire Screen" outright (it would capture its own tab and the floating panel, nesting the recording inside itself), and excludes MaherCast's own tab from the picker → ② tap **📌** to pop the tools into the floating panel → ③ present your content and annotate from the panel. Everything you draw is baked into the video; the panel and toolbar are not.
 
 > **Note:** iOS doesn't allow browser screen capture in any browser (Apple restriction) — on iPhone, MaherCast automatically switches to camera mode. Share links appear when you run the local server (below); the hosted version covers recording, library, download, and native sharing.
 
