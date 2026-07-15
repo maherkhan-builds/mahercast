@@ -77,6 +77,13 @@ Open any recording from your library and tap **Trim & Edit**:
 
 > **Note:** iOS doesn't allow browser screen capture in any browser (Apple restriction) — on iPhone, MaherCast automatically switches to camera mode. Share links appear when you run the local server (below); the hosted version covers recording, library, download, and native sharing.
 
+### 📁 What file format do I get?
+
+Recordings and edited exports download as **`.webm`**. This is deliberate: Chrome's *MP4* recorder output is technically valid but built in a "streaming" style (fragmented MP4) that Windows Media Player tolerates but that **WhatsApp and many video editors reject as an "unsupported format"** despite the `.mp4` name — a well-known Chrome limitation, not a MaherCast bug. WebM avoids this trap entirely.
+
+- ✅ **Plays natively / uploads fine:** Chrome, Firefox, Edge, Android, WhatsApp (as a file), YouTube upload, VLC, and modern editors (Premiere 2023+, DaVinci Resolve, CapCut)
+- ⚠️ **Won't play natively:** iPhone/Safari, and very old software — if you need a classic `.mp4` for one of these, run any free local converter (e.g. VLC's "Convert/Save," or HandBrake) on the downloaded `.webm`; it's a fast, lossless repackage, not a re-encode
+
 ## 🚀 Run the full platform locally
 
 The local server unlocks share links, watch pages, reactions, and comments — your recordings never leave your network.
