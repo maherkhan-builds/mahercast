@@ -223,7 +223,9 @@ const Editor = (() => {
 
   /* ---------- export ---------- */
   function pickMime() {
-    const c = ['video/mp4;codecs=avc1', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm', 'video/mp4'];
+    // See app.js pickMime() — Chrome's "video/mp4" output is fragmented MP4,
+    // which WhatsApp and many editors reject despite the .mp4 name. WebM first.
+    const c = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm', 'video/mp4;codecs=avc1', 'video/mp4'];
     for (const m of c) if (MediaRecorder.isTypeSupported(m)) return m;
     return '';
   }

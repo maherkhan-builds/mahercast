@@ -70,14 +70,20 @@ function fmt(sec) {
 }
 
 function pickMime() {
+  // Chrome's MediaRecorder writes "video/mp4" as fragmented/streaming-style
+  // MP4 (ftyp->moov->moof->mdat->mfra), not the flat ftyp->moov->mdat layout
+  // WhatsApp and most editors expect — so a Chrome "mp4" recording plays in
+  // lenient players (Windows Media Player) but gets rejected elsewhere as an
+  // "unsupported format" despite the .mp4 name. WebM has no such trap, so it
+  // comes first; mp4 is only a last-resort fallback (e.g. Safari, which
+  // records real, non-fragmented mp4).
   const candidates = [
-    'video/mp4;codecs=avc1',
     'video/webm;codecs=vp9,opus',
     'video/webm;codecs=vp8,opus',
     'video/webm',
+    'video/mp4;codecs=avc1',
     'video/mp4',
   ];
-  // Safari records mp4; Chrome/Firefox webm. Prefer whatever the browser supports.
   if (window.MediaRecorder) {
     for (const c of candidates) if (MediaRecorder.isTypeSupported(c)) return c;
   }
