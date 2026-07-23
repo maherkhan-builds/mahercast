@@ -223,11 +223,160 @@ const Editor = (() => {
 
   /* ---------- export ---------- */
   function pickMime() {
-    // See app.js pickMime() — Chrome's "video/mp4" output is fragmented MP4,
-    // which WhatsApp and many editors reject despite the .mp4 name. WebM first.
+    // Fallback path only (see encodeMp4 below for the real, CapCut/WhatsApp-
+    // compatible MP4 path). Chrome's own "video/mp4" MediaRecorder output is
+    // fragmented MP4, which many apps reject despite the .mp4 name — so if
+    // we ever fall all the way back to MediaRecorder, prefer webm.
     const c = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm', 'video/mp4;codecs=avc1', 'video/mp4'];
     for (const m of c) if (MediaRecorder.isTypeSupported(m)) return m;
     return '';
+  }
+
+  const canEncodeMp4 = () =>
+    typeof VideoEncoder !== 'undefined' && typeof AudioEncoder !== 'undefined' &&
+    typeof MediaStreamTrackProcessor !== 'undefined' && typeof Mp4Muxer !== 'undefined';
+
+  // Encodes real, flat (non-fragmented) H.264/AAC MP4 via WebCodecs + mp4-muxer
+  // — this is what makes the export actually open in CapCut, WhatsApp, and
+  // other editors, unlike Chrome's own broken "video/mp4" MediaRecorder output.
+  async function encodeMp4({ actx, dest, expV, musicEl, mGain, status, total }) {
+    const bitrate = E.W * E.H <= 1280 * 720 ? 6_000_000 : E.W * E.H <= 1920 * 1080 ? 8_000_000 : 12_000_000;
+    let videoConfig = null;
+    for (const codec of ['avc1.640028', 'avc1.4d0028', 'avc1.42001f']) {
+      const support = await VideoEncoder.isConfigSupported({ codec, width: E.W, height: E.H, bitrate, framerate: 30 });
+      if (support.supported) { videoConfig = support.config; break; }
+    }
+    if (!videoConfig) throw new Error('NO_H264_ENCODER');
+
+    const audioTrack = dest.stream.getAudioTracks()[0];
+    const sampleRate = actx.sampleRate;
+    const numberOfChannels = audioTrack.getSettings().channelCount || 2;
+    const audioSupport = await AudioEncoder.isConfigSupported({ codec: 'mp4a.40.2', sampleRate, numberOfChannels, bitrate: 128_000 });
+    if (!audioSupport.supported) throw new Error('NO_AAC_ENCODER');
+
+    const muxer = new Mp4Muxer.Muxer({
+      target: new Mp4Muxer.ArrayBufferTarget(),
+      video: { codec: 'avc', width: E.W, height: E.H },
+      audio: { codec: 'aac', numberOfChannels, sampleRate },
+      fastStart: 'in-memory',
+      firstTimestampBehavior: 'offset',
+    });
+
+    const videoEncoder = new VideoEncoder({
+      output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
+      error: e => console.error('video encode error', e),
+    });
+    videoEncoder.configure(videoConfig);
+
+    const audioEncoder = new AudioEncoder({
+      output: (chunk, meta) => muxer.addAudioChunk(chunk, meta),
+      error: e => console.error('audio encode error', e),
+    });
+    audioEncoder.configure({ codec: 'mp4a.40.2', sampleRate, numberOfChannels, bitrate: 128_000 });
+
+    const cs = E.canvas.captureStream(30);
+    const videoReader = new MediaStreamTrackProcessor({ track: cs.getVideoTracks()[0] }).readable.getReader();
+    const audioReader = new MediaStreamTrackProcessor({ track: audioTrack }).readable.getReader();
+
+    let stop = false, frameCount = 0;
+    const pumpVideo = (async () => {
+      while (!stop) {
+        const { value, done } = await videoReader.read();
+        if (done || !value) break;
+        if (videoEncoder.encodeQueueSize <= 2) {
+          videoEncoder.encode(value, { keyFrame: frameCount % 90 === 0 });
+          frameCount++;
+        }
+        value.close();
+      }
+    })();
+    const pumpAudio = (async () => {
+      while (!stop) {
+        const { value, done } = await audioReader.read();
+        if (done || !value) break;
+        audioEncoder.encode(value);
+        value.close();
+      }
+    })();
+
+    expV.currentTime = E.trimStart;
+    await new Promise(r => { expV.onseeked = r; setTimeout(r, 2500); });
+    cancelAnimationFrame(E.raf);
+    await expV.play();
+    if (musicEl) musicEl.play().catch(() => {});
+
+    await new Promise(resolve => {
+      const workerSrc = URL.createObjectURL(new Blob(
+        ['setInterval(() => postMessage(0), 33);'], { type: 'text/javascript' }));
+      const ticker = new Worker(workerSrc);
+      URL.revokeObjectURL(workerSrc);
+      ticker.onmessage = () => {
+        const t = expV.currentTime;
+        draw(expV, t);
+        status.textContent = `Exporting… ${fmt(Math.min(Math.max(t - E.trimStart, 0), total))} / ${fmt(total)}`;
+        if (mGain) {
+          const left = E.trimEnd - t;
+          mGain.gain.value = ($('musicVol').value / 100) * Math.min(1, Math.max(left, 0) / 2);
+        }
+        if (t >= E.trimEnd || expV.ended) { ticker.terminate(); resolve(); }
+      };
+    });
+
+    stop = true;
+    expV.pause();
+    if (musicEl) musicEl.pause();
+    try { await videoReader.cancel(); } catch {}
+    try { await audioReader.cancel(); } catch {}
+    await Promise.all([pumpVideo, pumpAudio]);
+    cs.getTracks().forEach(t => t.stop());
+
+    await videoEncoder.flush();
+    await audioEncoder.flush();
+    muxer.finalize();
+    return new Blob([muxer.target.buffer], { type: 'video/mp4' });
+  }
+
+  // Old MediaRecorder-based path — only used if this browser can't do the
+  // real MP4 encode above (older Chrome, or Firefox/Safari without WebCodecs).
+  async function encodeWebmFallback({ actx, dest, expV, musicEl, mGain, status, total }) {
+    const cs = E.canvas.captureStream(30);
+    const out = new MediaStream([...cs.getVideoTracks(), ...dest.stream.getAudioTracks()]);
+    const mime = pickMime();
+    const recorder = new MediaRecorder(out, mime ? { mimeType: mime } : undefined);
+    const chunks = [];
+    recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    const stopped = new Promise(r => { recorder.onstop = r; });
+
+    expV.currentTime = E.trimStart;
+    await new Promise(r => { expV.onseeked = r; setTimeout(r, 2500); });
+    cancelAnimationFrame(E.raf);
+    recorder.start(1000);
+    await expV.play();
+    if (musicEl) musicEl.play().catch(() => {});
+
+    await new Promise(resolve => {
+      const workerSrc = URL.createObjectURL(new Blob(
+        ['setInterval(() => postMessage(0), 33);'], { type: 'text/javascript' }));
+      const ticker = new Worker(workerSrc);
+      URL.revokeObjectURL(workerSrc);
+      ticker.onmessage = () => {
+        const t = expV.currentTime;
+        draw(expV, t);
+        status.textContent = `Exporting… ${fmt(Math.min(Math.max(t - E.trimStart, 0), total))} / ${fmt(total)}`;
+        if (mGain) {
+          const left = E.trimEnd - t;
+          mGain.gain.value = ($('musicVol').value / 100) * Math.min(1, Math.max(left, 0) / 2);
+        }
+        if (t >= E.trimEnd || expV.ended) { ticker.terminate(); resolve(); }
+      };
+    });
+
+    recorder.stop();
+    expV.pause();
+    if (musicEl) musicEl.pause();
+    await stopped;
+    cs.getTracks().forEach(t => t.stop());
+    return new Blob(chunks, { type: recorder.mimeType || 'video/webm' });
   }
 
   async function doExport() {
@@ -237,6 +386,7 @@ const Editor = (() => {
     const status = $('exportStatus');
     const btn = $('exportBtn');
     btn.disabled = true;
+    let actx;
     try {
       const expV = document.createElement('video');
       expV.src = E.url;
@@ -244,7 +394,7 @@ const Editor = (() => {
       expV.preload = 'auto';
       await new Promise((res, rej) => { expV.onloadedmetadata = res; expV.onerror = rej; });
 
-      const actx = new AudioContext();
+      actx = new AudioContext();
       await actx.resume();
       const dest = actx.createMediaStreamDestination();
       const vGain = actx.createGain();
@@ -262,63 +412,41 @@ const Editor = (() => {
         mGain.connect(dest);
       }
 
-      const cs = E.canvas.captureStream(30);
-      const out = new MediaStream([...cs.getVideoTracks(), ...dest.stream.getAudioTracks()]);
-      const mime = pickMime();
-      const recorder = new MediaRecorder(out, mime ? { mimeType: mime } : undefined);
-      const chunks = [];
-      recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
-      const stopped = new Promise(r => { recorder.onstop = r; });
-
-      expV.currentTime = E.trimStart;
-      await new Promise(r => { expV.onseeked = r; setTimeout(r, 2500); });
-
-      cancelAnimationFrame(E.raf); // take over the canvas
-      recorder.start(1000);
-      await expV.play();
-      if (musicEl) musicEl.play().catch(() => {});
-
       const total = E.trimEnd - E.trimStart;
-      // A worker timer (not rAF) drives the export so it keeps running even
-      // if the tab is backgrounded — rAF stops firing in hidden tabs.
-      await new Promise(resolve => {
-        const workerSrc = URL.createObjectURL(new Blob(
-          ['setInterval(() => postMessage(0), 33);'], { type: 'text/javascript' }));
-        const ticker = new Worker(workerSrc);
-        URL.revokeObjectURL(workerSrc);
-        ticker.onmessage = () => {
-          const t = expV.currentTime;
-          draw(expV, t);
-          status.textContent = `Exporting… ${fmt(Math.min(Math.max(t - E.trimStart, 0), total))} / ${fmt(total)}`;
-          if (mGain) { // gentle music fade in the last 2 seconds
-            const left = E.trimEnd - t;
-            mGain.gain.value = ($('musicVol').value / 100) * Math.min(1, Math.max(left, 0) / 2);
-          }
-          if (t >= E.trimEnd || expV.ended) { ticker.terminate(); resolve(); }
-        };
-      });
-
-      recorder.stop();
-      expV.pause();
-      if (musicEl) musicEl.pause();
-      await stopped;
+      let blob, mime;
+      if (canEncodeMp4()) {
+        try {
+          blob = await encodeMp4({ actx, dest, expV, musicEl, mGain, status, total });
+          mime = 'video/mp4';
+        } catch (mp4err) {
+          console.warn('MP4 encode failed, falling back to WebM:', mp4err);
+          toastEd('Real MP4 encoding hit a snag — saving as WebM instead');
+          expV.pause();
+          if (musicEl) musicEl.pause();
+          blob = await encodeWebmFallback({ actx, dest, expV, musicEl, mGain, status, total });
+          mime = blob.type || 'video/webm';
+        }
+      } else {
+        blob = await encodeWebmFallback({ actx, dest, expV, musicEl, mGain, status, total });
+        mime = blob.type || 'video/webm';
+      }
       actx.close().catch(() => {});
 
-      const blob = new Blob(chunks, { type: recorder.mimeType || 'video/webm' });
       status.textContent = 'Saving…';
       await E.onSaved({
         name: E.rec.name.replace(/ \(edited.*\)$/, '') + ' (edited)',
         blob,
-        mime: recorder.mimeType || 'video/webm',
+        mime,
         duration: total,
       });
       status.textContent = '';
-      toastEd('✅ Edited video saved to your library');
+      toastEd(mime.includes('mp4') ? '✅ Saved as MP4 — ready for CapCut, WhatsApp, anywhere' : '✅ Edited video saved to your library');
       E.exporting = false;
       $('exportBtn').disabled = false;
       close();
       return;
     } catch (err) {
+      if (actx) actx.close().catch(() => {});
       status.textContent = '';
       toastEd('Export failed: ' + err.message);
       E.exporting = false;
@@ -326,8 +454,6 @@ const Editor = (() => {
       loop();
       return;
     }
-    E.exporting = false;
-    btn.disabled = false;
   }
 
   /* ---------- lifecycle ---------- */

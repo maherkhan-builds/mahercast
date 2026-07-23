@@ -71,7 +71,7 @@ Open any recording from your library and tap **Trim & Edit**:
 | ✂️ Trim | Drag the purple handles on the timeline to cut the start and end |
 | 🔍 Attention zooms | Seek to a moment, drag over the area you're explaining — the video smoothly zooms in, holds (2–10s, your choice), and zooms back out |
 | 🎵 Background music | Pick any audio file from your device; independent music/voice volume sliders and an automatic fade-out at the end |
-| 💾 Export | Re-renders in your browser and saves straight back to your library — then share, download, or edit again |
+| 💾 Export | Re-renders in your browser as a real, universal **`.mp4`** (H.264/AAC, WebCodecs) and saves straight back to your library — then share, download, or edit again |
 
 > **The presenter workflow:** ① share the **Window or Chrome Tab of your teaching content** in Chrome's picker — MaherCast blocks "Entire Screen" outright (it would capture its own tab and the floating panel, nesting the recording inside itself), and excludes MaherCast's own tab from the picker → ② tap **📌** to pop the tools into the floating panel → ③ present your content and annotate from the panel. Everything you draw is baked into the video; the panel and toolbar are not.
 
@@ -79,10 +79,10 @@ Open any recording from your library and tap **Trim & Edit**:
 
 ### 📁 What file format do I get?
 
-Recordings and edited exports download as **`.webm`**. This is deliberate: Chrome's *MP4* recorder output is technically valid but built in a "streaming" style (fragmented MP4) that Windows Media Player tolerates but that **WhatsApp and many video editors reject as an "unsupported format"** despite the `.mp4` name — a well-known Chrome limitation, not a MaherCast bug. WebM avoids this trap entirely.
+- **Raw recordings** (straight out of the recorder, before editing) download as **`.webm`**. This is deliberate: Chrome's own *MP4* recorder output is technically valid but built in a "streaming" style (fragmented MP4) that Windows Media Player tolerates but that WhatsApp and many editors reject as an "unsupported format" despite the `.mp4` name — a well-known Chrome limitation, not a MaherCast bug.
+- **Anything exported from the built-in editor** (Trim & Edit → Export) downloads as a **real, standard `.mp4`** — genuine H.264/AAC encoded with [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) and muxed flat (no fragmentation) via [mp4-muxer](https://github.com/Vanilagy/mp4-muxer), the same structure a phone camera produces. This is what makes it open cleanly in **CapCut, WhatsApp, Premiere, DaVinci Resolve, and iPhone** — no extra conversion step needed. If your browser doesn't support WebCodecs, it automatically falls back to `.webm`.
 
-- ✅ **Plays natively / uploads fine:** Chrome, Firefox, Edge, Android, WhatsApp (as a file), YouTube upload, VLC, and modern editors (Premiere 2023+, DaVinci Resolve, CapCut)
-- ⚠️ **Won't play natively:** iPhone/Safari, and very old software — if you need a classic `.mp4` for one of these, run any free local converter (e.g. VLC's "Convert/Save," or HandBrake) on the downloaded `.webm`; it's a fast, lossless repackage, not a re-encode
+**Bottom line:** if you need a file that works everywhere (CapCut, WhatsApp, iPhone), run it through **Trim & Edit → Export** even if you don't need to change anything — that's the step that produces the universal `.mp4`.
 
 ## 🚀 Run the full platform locally
 
