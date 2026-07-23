@@ -228,33 +228,64 @@ async function startRecording() {
     toast('📌 Tap the pin to pop your tools into a floating panel — it stays on top while you present', 7000);
   }
 
-  const mime = pickMime();
-  state.chunks = [];
-  state.recorder = new MediaRecorder(output, mime ? { mimeType: mime } : undefined);
-  state.recorder.ondataavailable = e => { if (e.data.size) state.chunks.push(e.data); };
-  state.recorder.onstop = finishRecording;
+  // When available, encode directly to real MP4 as you record (no slow
+  // export step afterward — see live-encoder.js). Otherwise fall back to
+  // MediaRecorder/webm exactly as before.
+  state.usingLiveMp4 = typeof LiveEncoder !== 'undefined' && LiveEncoder.supported();
+  state.isPaused = false;
+  if (state.usingLiveMp4) {
+    try {
+      await LiveEncoder.start({
+        videoTrack: canvasStream.getVideoTracks()[0],
+        audioTrack: output.getAudioTracks()[0] || null,
+        width: Studio._state.W,
+        height: Studio._state.H,
+      });
+    } catch (e) {
+      console.warn('Live MP4 encoding unavailable, falling back to WebM recorder:', e);
+      state.usingLiveMp4 = false;
+    }
+  }
+
+  if (!state.usingLiveMp4) {
+    const mime = pickMime();
+    state.chunks = [];
+    state.recorder = new MediaRecorder(output, mime ? { mimeType: mime } : undefined);
+    state.recorder.ondataavailable = e => { if (e.data.size) state.chunks.push(e.data); };
+    state.recorder.onstop = () => {
+      const m = state.recorder.mimeType || 'video/webm';
+      finishRecording(new Blob(state.chunks, { type: m }), m);
+    };
+    state.recorder.start(1000);
+  }
   // Stop when user ends screen share from the browser's own UI
-  stream.getVideoTracks()[0].addEventListener('ended', () => {
-    if (state.recorder && state.recorder.state !== 'inactive') state.recorder.stop();
-  });
-  state.recorder.start(1000);
+  stream.getVideoTracks()[0].addEventListener('ended', () => { void stopRecordingNow(); });
   state.startedAt = Date.now();
   state.pausedTotal = 0;
 
   $('recBar').hidden = false;
   $('recordBtn').disabled = true;
   state.timerInt = setInterval(() => {
-    if (state.recorder && state.recorder.state === 'recording') {
-      $('timer').textContent = fmt((Date.now() - state.startedAt - state.pausedTotal) / 1000);
-    }
+    const active = state.usingLiveMp4 ? !state.isPaused : (state.recorder && state.recorder.state === 'recording');
+    if (active) $('timer').textContent = fmt((Date.now() - state.startedAt - state.pausedTotal) / 1000);
   }, 250);
 }
 
-async function finishRecording() {
+async function stopRecordingNow() {
+  if (state.usingLiveMp4) {
+    if (!LiveEncoder.isRunning()) return;
+    $('stopBtn').disabled = true;
+    const blob = await LiveEncoder.stop();
+    $('stopBtn').disabled = false;
+    await finishRecording(blob, 'video/mp4');
+  } else if (state.recorder && state.recorder.state !== 'inactive') {
+    state.recorder.stop();
+  }
+}
+
+async function finishRecording(blob, mime) {
   clearInterval(state.timerInt);
   const duration = (Date.now() - state.startedAt - state.pausedTotal) / 1000;
-  const mime = state.recorder.mimeType || 'video/webm';
-  const blob = new Blob(state.chunks, { type: mime });
   state.chunks = [];
   Studio.stop();
   state.streams.forEach(s => s.getTracks().forEach(t => t.stop()));
@@ -264,7 +295,7 @@ async function finishRecording() {
   $('recordBtn').disabled = false;
   $('pauseBtn').textContent = '⏸';
 
-  if (!blob.size) { toast('Recording was empty'); return; }
+  if (!blob || !blob.size) { toast('Recording was empty'); return; }
 
   const rec = {
     id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
@@ -281,10 +312,22 @@ async function finishRecording() {
 }
 
 $('recordBtn').addEventListener('click', startRecording);
-$('stopBtn').addEventListener('click', () => {
-  if (state.recorder && state.recorder.state !== 'inactive') state.recorder.stop();
-});
+$('stopBtn').addEventListener('click', () => { void stopRecordingNow(); });
 $('pauseBtn').addEventListener('click', () => {
+  if (state.usingLiveMp4) {
+    if (!state.isPaused) {
+      LiveEncoder.pause();
+      state.isPaused = true;
+      state.pausedAt = Date.now();
+      $('pauseBtn').textContent = '▶️';
+    } else {
+      LiveEncoder.resume();
+      state.isPaused = false;
+      state.pausedTotal += Date.now() - state.pausedAt;
+      $('pauseBtn').textContent = '⏸';
+    }
+    return;
+  }
   const r = state.recorder;
   if (!r) return;
   if (r.state === 'recording') {
