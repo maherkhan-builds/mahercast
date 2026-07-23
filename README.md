@@ -79,10 +79,11 @@ Open any recording from your library and tap **Trim & Edit**:
 
 ### 📁 What file format do I get?
 
-- **Raw recordings** (straight out of the recorder, before editing) download as **`.webm`**. This is deliberate: Chrome's own *MP4* recorder output is technically valid but built in a "streaming" style (fragmented MP4) that Windows Media Player tolerates but that WhatsApp and many editors reject as an "unsupported format" despite the `.mp4` name — a well-known Chrome limitation, not a MaherCast bug.
-- **Anything exported from the built-in editor** (Trim & Edit → Export) downloads as a **real, standard `.mp4`** — genuine H.264/AAC encoded with [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) and muxed flat (no fragmentation) via [mp4-muxer](https://github.com/Vanilagy/mp4-muxer), the same structure a phone camera produces. This is what makes it open cleanly in **CapCut, WhatsApp, Premiere, DaVinci Resolve, and iPhone** — no extra conversion step needed. If your browser doesn't support WebCodecs, it automatically falls back to `.webm`.
+Recordings encode straight to a **real, standard `.mp4`** — genuine H.264/AAC, built live as you record via [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) and muxed flat (no fragmentation) with [mp4-muxer](https://github.com/Vanilagy/mp4-muxer), the same structure a phone camera produces. Because the encoding happens *during* recording rather than as a separate step afterward, Download is instant — there's no export wait. This is what makes the file open cleanly in **CapCut, WhatsApp, Premiere, DaVinci Resolve, and iPhone** with no conversion step.
 
-**Bottom line:** if you need a file that works everywhere (CapCut, WhatsApp, iPhone), run it through **Trim & Edit → Export** even if you don't need to change anything — that's the step that produces the universal `.mp4`.
+If your browser doesn't support WebCodecs (older browsers; desktop Chrome/Edge is fully supported), recording automatically falls back to `.webm` instead — still works everywhere except iPhone/Safari and very old software, just without the instant-mp4 guarantee.
+
+Exporting from the built-in editor (Trim & Edit → Export) also produces the same real, flat `.mp4` — but since that step re-plays the whole clip to apply trims/zooms/music, it takes roughly as long as the clip itself, unlike the instant raw download.
 
 ## 🚀 Run the full platform locally
 
