@@ -113,6 +113,7 @@ async function makeThumb(blob) {
 const hints = {
   screen: 'Records your screen — switch apps, everything is captured.',
   camera: 'Records your camera and mic. Perfect for talking-head videos.',
+  overlay: 'Pick a photo or video for the background, then talk in a bubble on top — perfect for Reels-style process videos.',
 };
 
 function setMode(mode) {
@@ -120,6 +121,8 @@ function setMode(mode) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
   $('modeHint').textContent = hints[mode];
   $('bubbleToggleWrap').style.display = mode === 'screen' && supportsScreen ? '' : 'none';
+  $('overlaySetup').hidden = mode !== 'overlay';
+  $('pickerTip').hidden = mode !== 'screen';
 }
 
 $('modeTabs').addEventListener('click', e => {
@@ -132,6 +135,32 @@ if (!supportsScreen) {
   $('unsupportedMsg').hidden = false;
   setMode('camera');
 }
+
+/* ---------- overlay mode: background photo/video picker ---------- */
+$('overlayFile').addEventListener('change', async () => {
+  const file = $('overlayFile').files[0];
+  if (!file) return;
+  if (state.overlayPreviewUrl) { URL.revokeObjectURL(state.overlayPreviewUrl); state.overlayPreviewUrl = null; }
+  state.overlayFile = file;
+  $('overlayFileLabel').textContent = '📁 ' + file.name;
+  $('overlayAudioWrap').hidden = !file.type.startsWith('video/');
+  $('overlayThumbWrap').hidden = false;
+  if (file.type.startsWith('video/')) {
+    $('overlayThumb').src = (await makeThumb(file)) || '';
+  } else {
+    const url = URL.createObjectURL(file);
+    state.overlayPreviewUrl = url;
+    $('overlayThumb').src = url;
+  }
+});
+$('overlayClear').addEventListener('click', () => {
+  state.overlayFile = null;
+  $('overlayFile').value = '';
+  $('overlayFileLabel').textContent = '📁 Choose a photo or video for the background';
+  $('overlayThumbWrap').hidden = true;
+  $('overlayAudioWrap').hidden = true;
+  if (state.overlayPreviewUrl) { URL.revokeObjectURL(state.overlayPreviewUrl); state.overlayPreviewUrl = null; }
+});
 
 /* ---------- recording ---------- */
 async function countdown() {
@@ -184,6 +213,67 @@ async function getStream() {
     }
     return new MediaStream(tracks);
   }
+  if (state.mode === 'overlay') {
+    if (!state.overlayFile) {
+      const err = new Error('NO_OVERLAY_FILE');
+      err.code = 'NO_OVERLAY_FILE';
+      throw err;
+    }
+    const isVideo = state.overlayFile.type.startsWith('video/');
+    const objectUrl = URL.createObjectURL(state.overlayFile);
+    state.overlayObjectUrl = objectUrl;
+    const wantBgAudio = isVideo && $('overlayAudioToggle').checked;
+
+    let bgVideoTrack, bgAudioTrack = null;
+    if (isVideo) {
+      const v = document.createElement('video');
+      v.src = objectUrl;
+      v.loop = true;
+      v.muted = !wantBgAudio;
+      v.playsInline = true;
+      await new Promise((res, rej) => { v.onloadedmetadata = res; v.onerror = rej; });
+      await v.play().catch(() => {});
+      state.overlayEl = v;
+      const vs = (v.captureStream || v.mozCaptureStream).call(v);
+      bgVideoTrack = vs.getVideoTracks()[0];
+      if (wantBgAudio) bgAudioTrack = vs.getAudioTracks()[0] || null;
+      state.streams.push(vs);
+    } else {
+      const img = new Image();
+      img.src = objectUrl;
+      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; });
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth || 1280;
+      c.height = img.naturalHeight || 720;
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      const cs = c.captureStream(2); // static image — a couple fps is plenty
+      bgVideoTrack = cs.getVideoTracks()[0];
+      state.streams.push(cs);
+      state.overlayEl = null;
+    }
+
+    let micTrack = null;
+    if (wantMic) {
+      try {
+        const mic = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true } });
+        state.streams.push(mic);
+        micTrack = mic.getAudioTracks()[0];
+      } catch { toast('Mic unavailable — recording without it'); }
+    }
+
+    const audioTracks = [bgAudioTrack, micTrack].filter(Boolean);
+    let outAudioTracks;
+    if (audioTracks.length > 1) {
+      const ctx = new AudioContext();
+      const dest = ctx.createMediaStreamDestination();
+      audioTracks.forEach(t => ctx.createMediaStreamSource(new MediaStream([t])).connect(dest));
+      state.audioCtx = ctx;
+      outAudioTracks = dest.stream.getAudioTracks();
+    } else {
+      outAudioTracks = audioTracks;
+    }
+    return new MediaStream([bgVideoTrack, ...outAudioTracks]);
+  }
   // camera mode
   const cam = await navigator.mediaDevices.getUserMedia({
     video: { facingMode: 'user', width: { ideal: 1280 } },
@@ -205,23 +295,31 @@ async function startRecording() {
     stream = await getStream();
   } catch (e) {
     if (e.code === 'ENTIRE_SCREEN_BLOCKED') { showEntireScreenBlock(); return; }
+    if (e.code === 'NO_OVERLAY_FILE') { toast('Pick a background photo or video first'); return; }
     if (e.name !== 'NotAllowedError') toast('Could not start: ' + e.message);
     return;
   }
 
   let camStream = null;
-  if (state.mode === 'screen' && $('bubbleToggle').checked) {
+  const wantsBubble = (state.mode === 'screen' && $('bubbleToggle').checked) || state.mode === 'overlay';
+  if (wantsBubble) {
     try {
       camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640 } });
       state.streams.push(camStream);
-    } catch { toast('Camera bubble unavailable'); }
+    } catch {
+      toast(state.mode === 'overlay' ? 'Camera is required for Overlay mode' : 'Camera bubble unavailable');
+      if (state.mode === 'overlay') { state.streams.forEach(s => s.getTracks().forEach(t => t.stop())); state.streams = []; return; }
+    }
   }
 
   if ($('countToggle').checked) await countdown();
 
-  // Everything (screen/camera + bubble + annotations + captions) is composited
-  // onto the Studio canvas, and the canvas is what gets recorded.
-  const canvasStream = await Studio.start({ sourceStream: stream, camStream, mode: state.mode });
+  // Everything (background/screen/camera + bubble + annotations + captions)
+  // is composited onto the Studio canvas, and the canvas is what gets recorded.
+  const canvasStream = await Studio.start({
+    sourceStream: stream, camStream, mode: state.mode,
+    titleTag: state.mode === 'overlay' ? $('overlayTitle').value : '',
+  });
   const output = new MediaStream([...canvasStream.getVideoTracks(), ...stream.getAudioTracks()]);
 
   if (state.mode === 'screen' && 'documentPictureInPicture' in window) {
@@ -291,6 +389,8 @@ async function finishRecording(blob, mime) {
   state.streams.forEach(s => s.getTracks().forEach(t => t.stop()));
   state.streams = [];
   if (state.audioCtx) { state.audioCtx.close().catch(() => {}); state.audioCtx = null; }
+  if (state.overlayEl) { state.overlayEl.pause(); state.overlayEl.src = ''; state.overlayEl = null; }
+  if (state.overlayObjectUrl) { URL.revokeObjectURL(state.overlayObjectUrl); state.overlayObjectUrl = null; }
   $('recBar').hidden = true;
   $('recordBtn').disabled = false;
   $('pauseBtn').textContent = '⏸';

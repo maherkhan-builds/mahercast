@@ -52,6 +52,7 @@ const Studio = (() => {
     captions: { on: false, text: '', rec: null, supported: false },
     dragging: null,
     pip: null,
+    titleTag: { text: '' },
   };
 
   /* ---------- geometry helpers ---------- */
@@ -334,6 +335,30 @@ const Studio = (() => {
     ctx.restore();
   }
 
+  // A persistent name/title pill (e.g. "Maher · Educator") for Overlay-mode
+  // Reels — set once at record start, baked into every frame, bottom-left so
+  // it never collides with the bubble's default bottom-right position.
+  function drawTitleTag(ctx) {
+    const text = S.titleTag && S.titleTag.text;
+    if (!text) return;
+    const k = scale();
+    ctx.save();
+    ctx.font = `700 ${22 * k}px system-ui, sans-serif`;
+    const padX = 16 * k, h = 42 * k;
+    const w = ctx.measureText(text).width + padX * 2;
+    const x = 16 * k, y = S.H - h - 16 * k;
+    ctx.shadowColor = 'rgba(0,0,0,0.35)';
+    ctx.shadowBlur = 10 * k;
+    ctx.fillStyle = 'rgba(18,19,26,0.72)';
+    rr(ctx, x, y, w, h, h / 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#fff';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, x + padX, y + h / 2 + 1 * k);
+    ctx.restore();
+  }
+
   function render() {
     const ctx = S.ctx;
     if (!S.running) return;
@@ -354,6 +379,7 @@ const Studio = (() => {
     }
     for (const a of S.annotations) drawAnnotation(ctx, a);
     if (S.draft) drawAnnotation(ctx, S.draft);
+    drawTitleTag(ctx);
     drawBubble(ctx);
     drawCaptions(ctx);
     if (S.pip) {
@@ -726,7 +752,7 @@ const Studio = (() => {
   }
 
   /* ---------- lifecycle ---------- */
-  async function start({ sourceStream, camStream, mode }) {
+  async function start({ sourceStream, camStream, mode, titleTag }) {
     wire();
     S.mode = mode;
     S.annotations = [];
@@ -734,7 +760,14 @@ const Studio = (() => {
     S.spotlight = null;
     S.captions.on = false;
     S.captions.text = '';
-    S.bubble.on = mode === 'screen' && !!camStream;
+    S.titleTag.text = (titleTag || '').trim();
+    S.bubble.on = (mode === 'screen' || mode === 'overlay') && !!camStream;
+    if (mode === 'overlay') {
+      // Overlay mode is presenter-first (like a Reel) — the bubble is the
+      // main subject, so it defaults large and centered instead of the
+      // small corner bubble used while narrating over a screen recording.
+      S.bubble.x = 0.5; S.bubble.y = 0.78; S.bubble.r = 0.22;
+    }
 
     S.srcVideo = document.createElement('video');
     S.srcVideo.muted = true;
