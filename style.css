@@ -59,6 +59,44 @@ main { max-width: 760px; margin: 0 auto; padding: 14px 16px; }
 
 .mode-hint { color: var(--mut); font-size: 13px; margin: 12px 2px 4px; }
 
+/* overlay mode setup */
+.overlay-setup { margin: 14px 2px 4px; }
+.file-pick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 2px dashed var(--line);
+  border-radius: 12px;
+  padding: 22px 14px;
+  color: var(--mut);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.file-pick:hover { border-color: var(--p); color: var(--p); }
+#overlayThumbWrap { position: relative; margin-top: 10px; border-radius: 12px; overflow: hidden; }
+#overlayThumb { width: 100%; max-height: 220px; object-fit: cover; display: block; background: #000; }
+#overlayClear {
+  position: absolute; top: 8px; right: 8px;
+  width: 30px; height: 30px;
+  border: 0; border-radius: 50%;
+  background: rgba(18,19,26,.7); color: #fff;
+  font-size: 14px; cursor: pointer;
+}
+.overlay-setup .field { margin-top: 12px; }
+.overlay-setup .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+.overlay-setup .field input[type="text"] {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit; font-size: 14px;
+  background: var(--bg);
+}
+#overlayAudioWrap { margin-top: 12px; }
+
 /* toggles */
 .toggles { display: flex; gap: 18px; margin: 14px 2px; flex-wrap: wrap; }
 .toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }

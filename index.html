@@ -22,9 +22,29 @@
       <div class="tabs" id="modeTabs">
         <button class="tab active" data-mode="screen" id="tabScreen">🖥️ Screen</button>
         <button class="tab" data-mode="camera" id="tabCamera">🤳 Camera</button>
+        <button class="tab" data-mode="overlay" id="tabOverlay">🎬 Overlay</button>
       </div>
 
       <p class="mode-hint" id="modeHint">Records your screen — switch apps, everything is captured.</p>
+
+      <div class="overlay-setup" id="overlaySetup" hidden>
+        <label class="file-pick" for="overlayFile">
+          <span id="overlayFileLabel">📁 Choose a photo or video for the background</span>
+        </label>
+        <input type="file" id="overlayFile" accept="image/*,video/*" hidden>
+        <div id="overlayThumbWrap" hidden>
+          <img id="overlayThumb" alt="">
+          <button id="overlayClear" title="Remove">✕</button>
+        </div>
+        <div class="field">
+          <label for="overlayTitle">Name or title on screen (optional)</label>
+          <input type="text" id="overlayTitle" placeholder="e.g. Maher · Educator" maxlength="40">
+        </div>
+        <label class="toggle" id="overlayAudioWrap" hidden>
+          <input type="checkbox" id="overlayAudioToggle">
+          <span class="slider"></span> Play the background video's own sound too
+        </label>
+      </div>
 
       <div class="toggles">
         <label class="toggle">
@@ -48,7 +68,7 @@
       <p class="studio-hint">🪄 While recording: magic pencil, arrows, notes, focus spotlight, live captions, bubble styles &amp; face filters — all baked into your video.</p>
       <p class="unsupported" id="unsupportedMsg" hidden>
         ⚠️ Screen capture isn't available in this browser (iPhones don't allow it).
-        Camera mode has you covered.
+        Camera and Overlay modes both work great here instead.
       </p>
     </section>
 

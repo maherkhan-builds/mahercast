@@ -37,7 +37,8 @@ MaherCast is a complete recording studio that runs entirely on your own machine:
 |---|---|
 | 🖥️ Screen recording | Capture your screen with mic + system audio (Chrome on desktop & Android) |
 | 🤳 Camera recording | Talking-head videos on any device, including iPhone |
-| 🫧 Camera bubble | Draggable face-cam overlay while you record your screen |
+| 🎬 Overlay mode | Reels-style process videos: pick a background photo or video from your device, then talk in a live camera bubble on top with an optional name/title tag — great for "here's how I made this" content on Instagram/TikTok. Works on iPhone too (no screen capture needed) |
+| 🫧 Camera bubble | Draggable face-cam overlay while you record your screen (or the main subject in Overlay mode) |
 | ⏯️ Recording controls | 3-2-1 countdown, pause/resume, live timer |
 | 📚 Library | Thumbnails, durations, rename, playback speed (0.5×–2×), download, native share sheet — stored privately in your browser (IndexedDB) |
 | 🔗 Instant share links | Loom's signature move: one tap uploads to your own local server and copies a link anyone on your Wi-Fi can watch |
