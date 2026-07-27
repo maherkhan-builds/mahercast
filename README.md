@@ -1,95 +1,87 @@
 <div align="center">
 
-[![MaherCast](https://readme-typing-svg.demolab.com?font=Montserrat&weight=800&size=32&duration=3000&pause=800&color=A78BFA&center=true&vCenter=true&width=700&height=60&lines=🎥+MaherCast;Your+Own+Loom%2C+Running+Locally;Record+·+Annotate+·+Edit+·+Share;No+Cloud.+No+Accounts.+No+Subscription.)](https://maherkhan-builds.github.io/mahercast/)
+![MaherCast animated header](https://capsule-render.vercel.app/api?type=waving&height=280&color=gradient&customColorList=6,11,15,20&text=MaherCast&fontColor=ffffff&fontSize=82&fontAlignY=38&desc=Your%20own%20Loom%2C%20running%20locally&descAlignY=60&animation=fadeIn)
 
-**A local-first, privacy-friendly screen recording studio in your browser**
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Montserrat&weight=800&size=24&duration=3000&pause=800&color=A78BFA&center=true&vCenter=true&width=760&lines=Record+%C2%B7+Annotate+%C2%B7+Edit+%C2%B7+Share;No+Cloud.+No+Accounts.+No+Subscription.;Your+recordings+never+leave+your+network.)](https://maherkhan-builds.github.io/mahercast/)
 
-[![▶️ Try It Now](https://img.shields.io/badge/▶️_TRY_IT_NOW-Live_App-a78bfa?style=for-the-badge)](https://maherkhan-builds.github.io/mahercast/)
-[![Built with Claude Code](https://img.shields.io/badge/Built_with-Claude_Code-cc785c?style=for-the-badge)](https://claude.com/claude-code)
-[![PWA](https://img.shields.io/badge/PWA-Installable-38e8a5?style=for-the-badge)](#-run-the-full-platform-locally)
+<p><strong>A local-first, privacy-friendly screen recording studio that runs entirely in your browser — record, annotate live, edit, and share, with nothing ever uploaded to the cloud.</strong></p>
+
+![JavaScript](https://img.shields.io/badge/JavaScript-09090D?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
+![Node.js](https://img.shields.io/badge/Node.js-111827?style=for-the-badge&logo=node.js&logoColor=339933)
+![PWA](https://img.shields.io/badge/PWA-19151F?style=for-the-badge&logo=pwa&logoColor=5A0FC8)
+![License](https://img.shields.io/badge/License-MIT-19151F?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Live-A78BFA?style=for-the-badge)
+
+[Live Demo](https://maherkhan-builds.github.io/mahercast/) · [Features](#-what-it-can-do) · [Quick Start](#-run-it-locally) · [How It Works](#-how-it-works)
 
 </div>
 
 ---
 
-## 🔗 Live App
+## ✨ Meet MaherCast
 
-**▶️ https://maherkhan-builds.github.io/mahercast/** — works on desktop, Android, and iOS. Installable as a PWA: open the link and choose **Add to Home Screen**.
+Loom is brilliant — right up until the paywall, the 5-minute free cap, and the fact every private recording lives on someone else's cloud. **MaherCast is that same workflow, running entirely on your own machine.** Record your screen or camera, draw and annotate live while you talk, trim and zoom in a built-in editor, and share a watch link over your own Wi-Fi — no account, no upload, no subscription, ever.
 
-## 🎯 The Problem
+## 🌱 The problem
 
-Loom is brilliant — until you hit the paywall, the 5-minute free cap, and the fact that every private recording of your screen lives on someone else's cloud. Educators, consultants, and teams that record sensitive client work need Loom's workflow **without the subscription and without uploading anything**.
+Educators, consultants, and teams that record sensitive client work need Loom's easy record-and-share workflow **without the subscription and without their screen recordings sitting on someone else's servers**. Free screen recorders either cap your length, watermark your video, or quietly upload everything to the cloud the moment you hit stop.
 
-## 💡 The Solution
+## 🍓 The solution / What it can do
 
-MaherCast is a complete recording studio that runs entirely on your own machine: record screen or camera, **annotate live while recording** (glowing pen, spotlight, captions), trim and add attention-zooms in a built-in editor, keep a private library in your browser, and share watch links — with view counts, emoji reactions, and comments — over your own Wi-Fi via a zero-dependency local server. **No accounts, no cloud, no subscription.**
+MaherCast is a complete recording studio — screen or camera capture, **live annotation while you record** (glowing pen, spotlight, captions), a built-in trim/zoom editor, a private library, and instant share links with view counts, reactions, and comments — all served from a zero-dependency local Node.js server on your own network.
 
-## 👥 Who It's For
+**Who it's for:** educators narrating lessons with on-screen annotation · consultants sending clients walkthroughs of private work · teams on a LAN who want Loom-style share links without data leaving the building · anyone who wants their recordings on their own device, full stop.
 
-- **Educators & course creators** narrating lessons with live on-screen annotation
-- **Consultants & freelancers** sending clients walkthrough videos of private work
-- **Teams on a LAN** who want Loom-style share links without data leaving the building
-- **Privacy-conscious creators** who want their recordings stored on their device, full stop
-
-## ✨ Features
-
-| Feature | Details |
+| Feature | What it feels like |
 |---|---|
-| 🖥️ Screen recording | Capture your screen with mic + system audio (Chrome on desktop & Android) |
-| 🤳 Camera recording | Talking-head videos on any device, including iPhone |
-| 🎬 Overlay mode | Reels-style process videos: pick a background photo or video from your device, then talk in a live camera bubble on top with an optional name/title tag — great for "here's how I made this" content on Instagram/TikTok. Works on iPhone too (no screen capture needed) |
-| 🫧 Camera bubble | Draggable face-cam overlay while you record your screen (or the main subject in Overlay mode) |
-| ⏯️ Recording controls | 3-2-1 countdown, pause/resume, live timer |
-| 🔄 Retake | Messed up mid-take? Tap Retake (twice, to confirm) to discard it and record again from zero — instantly, keeping the same background, camera, and title already set up. "Record again" is also available from the player after you stop |
-| 📚 Library | Thumbnails, durations, rename, playback speed (0.5×–2×), download, native share sheet — stored privately in your browser (IndexedDB) |
-| 🔗 Instant share links | Loom's signature move: one tap uploads to your own local server and copies a link anyone on your Wi-Fi can watch |
-| 👀 Watch pages | View counts, emoji reactions (👍 ❤️ 🔥 😂 👏), and comments |
-| 📱 PWA | Installs to your home screen like a native app |
+| 🖥️ Screen + 🤳 camera recording | Capture your screen with mic/system audio, or record talking-head video on any device — including iPhone |
+| 🎬 Overlay mode | Reels-style process videos: a background photo/video with a live camera bubble talking on top — no screen capture needed, works on iPhone |
+| 🪄 Live studio tools | Glowing magic pencil, arrows/shapes, sticky notes & speech bubbles, focus spotlight, and live captions — all composited straight into the recording as you talk |
+| 📌 Pop-out presenter panel | Floats your tools + a live preview in an always-on-top window, so you can draw on your teaching content while it stays outside the recording itself |
+| ⏯️ Recording controls | 3-2-1 countdown, pause/resume, live timer, and one-tap Retake that discards a bad take and starts over instantly |
+| ✂️ Built-in editor | Trim the start/end, add attention-zooms that smoothly zoom in and hold, layer background music with independent volume + auto fade-out |
+| 💾 Real `.mp4` export | Encodes live via WebCodecs to a genuine H.264/AAC `.mp4` — opens cleanly in CapCut, WhatsApp, Premiere, DaVinci, and iPhone with no conversion |
+| 📚 Private library | Thumbnails, durations, rename, 0.5×–2× playback speed, download, native share sheet — stored in your browser's IndexedDB |
+| 🔗 Instant share links + 👀 watch pages | One tap uploads to your own local server and copies a link anyone on your Wi-Fi can watch, react to (👍❤️🔥😂👏), and comment on |
+| 📱 Installable PWA | Add to Home Screen on desktop, Android, and iOS |
 
-### 🪄 Studio tools — annotate *while* you record
+## 🫶 How to use it
 
-Built for educators and explainer videos. Everything below is composited live onto the recording itself, so viewers see exactly what you drew — no editing needed.
+1. Open the [live app](https://maherkhan-builds.github.io/mahercast/) (or run the local server for share links — see Quick Start below) and choose **screen**, **camera**, or **overlay** mode.
+2. Hit record. While recording, draw with the magic pencil, drop notes/arrows, spotlight an area, or turn on live captions — everything you add is baked straight into the video.
+3. Stop, then open **Trim & Edit** to cut the ends, add attention-zooms, and layer in background music.
+4. Tap **Share** to get a link anyone on your Wi-Fi can open and watch, react to, and comment on — or download the `.mp4` straight to your device.
 
-| Tool | Details |
-|---|---|
-| ✏️ Magic pencil | Glowing freehand pen — circle and underline anything on screen; pick any ink color |
-| ➤ ▭ Shapes | Arrows and rectangles with a soft glow to point at what matters |
-| 📝 💬 Notes | Tap to type a note box or speech bubble; undo (↩️) or clear all (🧹) the moment you move to the next topic |
-| 🔦 Focus spotlight | Drag over an area — the rest of the screen turns to frosted glass while your selection stays crystal clear; drag to move it, tap to remove |
-| 💬 Live captions | One-tap CC button — your speech becomes captions burned into the video (Web Speech API) |
-| 🫧 Bubble styles | Shape (⭕ circle / ▢ rounded square / 🔺 rounded triangle), a size slider so it's never too big or small for the platform you're posting to, a soft floating drop-shadow (toggle on/off), ring colors, gradients (sunset, ocean, candy), 🌈 rainbow, ✨ glow, 🔥 animated fire, ☁️ cloud — plus a custom color picker |
-| 😎 Face filters | Clear skin, background blur, warm, cool, B&W, vintage, vivid, neon, comic — applied to your camera bubble (or the whole frame in camera mode) |
-| 🎬 Keeps rolling | A worker-based ticker keeps compositing even when the tab is in the background while you present another app |
-| 📌 Pop-out presenter panel | One tap floats your tools + a live preview in a small always-on-top window (Document Picture-in-Picture). Toggle between a tall or wide layout depending on how you like to work. Draw on the panel's own preview — annotations land in the video at the same relative spot; the panel itself never does (unless you share "entire screen" instead of a window/tab) |
+## 🧠 How it works
 
-> **Why you draw on a preview, not your real screen:** no browser (MaherCast, Loom's web recorder, or anyone else's) is allowed to paint directly on top of your desktop or another app's window — that's an OS security rule, not a limitation of this tool. The floating panel's mini preview is a live, pixel-accurate mirror of what's being recorded; whatever you draw on it lands in the exact same spot in your final video.
+```
+ Browser capture                Live compositor              Local network
+┌──────────────────┐        ┌──────────────────────┐      ┌────────────────────┐
+│ getDisplayMedia / │        │ Canvas overlay:       │      │ Zero-dep Node.js    │
+│ getUserMedia +     │──────▶│ pencil · shapes ·      │─────▶│ HTTPS server        │
+│ Web Audio mixing   │        │ spotlight · captions  │      │ (uploads, watch     │
+└──────────────────┘        └──────────┬────────────┘      │  pages, reactions,  │
+                                        │                    │  Range-based video  │
+                              WebCodecs │ live encode         │  streaming)         │
+                                        ▼                    └──────────┬─────────┘
+                              ┌──────────────────┐                       │
+                              │ Flat H.264/AAC     │                       ▼
+                              │ .mp4 → IndexedDB    │            Watch link shared
+                              │ library (private)   │            over your own Wi-Fi
+                              └──────────────────┘
+```
 
-### ✂️ Built-in editor — no other software needed
+Recordings encode straight to a real, standard `.mp4` — built live as you record via [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) and muxed flat with [mp4-muxer](https://github.com/Vanilagy/mp4-muxer), the same structure a phone camera produces, so Download is instant with no export wait. If your browser doesn't support WebCodecs, recording falls back to `.webm` automatically. Because no browser is allowed to paint directly onto your desktop, live annotations are drawn on a pixel-accurate preview in the pop-out presenter panel — whatever you draw there lands in the same spot in the final video. iOS doesn't allow screen capture in any browser (an Apple restriction), so MaherCast switches to camera mode automatically there.
 
-Open any recording from your library and tap **Trim & Edit**:
+## 🛠️ Built with
 
-| Feature | Details |
-|---|---|
-| ✂️ Trim | Drag the purple handles on the timeline to cut the start and end |
-| 🔍 Attention zooms | Seek to a moment, drag over the area you're explaining — the video smoothly zooms in, holds (2–10s, your choice), and zooms back out |
-| 🎵 Background music | Pick any audio file from your device; independent music/voice volume sliders and an automatic fade-out at the end |
-| 💾 Export | Re-renders in your browser as a real, universal **`.mp4`** (H.264/AAC, WebCodecs) and saves straight back to your library — then share, download, or edit again |
+- **Frontend:** Vanilla JavaScript — `MediaRecorder`, `getDisplayMedia` / `getUserMedia`, Web Audio (mic + system audio mixing), IndexedDB, Web Share API, Document Picture-in-Picture
+- **Backend:** A single-file, zero-dependency Node.js server — HTTPS for phones, upload streaming, HTTP Range support for smooth seeking, JSON-file metadata for views/reactions/comments
+- **PWA:** Manifest + SVG icon, installable on Android, iOS, and desktop
 
-> **The presenter workflow:** ① share the **Window or Chrome Tab of your teaching content** in Chrome's picker — MaherCast blocks "Entire Screen" outright (it would capture its own tab and the floating panel, nesting the recording inside itself), and excludes MaherCast's own tab from the picker → ② tap **📌** to pop the tools into the floating panel → ③ present your content and annotate from the panel. Everything you draw is baked into the video; the panel and toolbar are not.
+## 🚀 Run it locally
 
-> **Note:** iOS doesn't allow browser screen capture in any browser (Apple restriction) — on iPhone, MaherCast automatically switches to camera mode. Share links appear when you run the local server (below); the hosted version covers recording, library, download, and native sharing.
-
-### 📁 What file format do I get?
-
-Recordings encode straight to a **real, standard `.mp4`** — genuine H.264/AAC, built live as you record via [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) and muxed flat (no fragmentation) with [mp4-muxer](https://github.com/Vanilagy/mp4-muxer), the same structure a phone camera produces. Because the encoding happens *during* recording rather than as a separate step afterward, Download is instant — there's no export wait. This is what makes the file open cleanly in **CapCut, WhatsApp, Premiere, DaVinci Resolve, and iPhone** with no conversion step.
-
-If your browser doesn't support WebCodecs (older browsers; desktop Chrome/Edge is fully supported), recording automatically falls back to `.webm` instead — still works everywhere except iPhone/Safari and very old software, just without the instant-mp4 guarantee.
-
-Exporting from the built-in editor (Trim & Edit → Export) also produces the same real, flat `.mp4` — but since that step re-plays the whole clip to apply trims/zooms/music, it takes roughly as long as the clip itself, unlike the instant raw download.
-
-## 🚀 Run the full platform locally
-
-The local server unlocks share links, watch pages, reactions, and comments — your recordings never leave your network.
+The local server unlocks share links, watch pages, reactions, and comments — recordings never leave your network.
 
 ```bash
 git clone https://github.com/maherkhan-builds/mahercast.git
@@ -107,11 +99,11 @@ Then open:
 
 Zero dependencies. Just Node.js and a browser.
 
-## 🛠️ How it's built
+## 🔎 Keywords
 
-- **Frontend:** Vanilla JavaScript — `MediaRecorder`, `getDisplayMedia` / `getUserMedia`, Web Audio (mic + system audio mixing), IndexedDB, Web Share API
-- **Backend:** A single-file, zero-dependency Node.js server — HTTPS for phones, upload streaming, HTTP Range support for smooth video seeking, JSON-file metadata for views/reactions/comments
-- **PWA:** Manifest + SVG icon, installable on Android, iOS, and desktop
+`screen-recorder` · `loom-alternative` · `privacy-first` · `local-first` · `pwa` · `screen-recording` · `video-annotation` · `web-audio-api` · `mediarecorder` · `claude-code` · `nodejs` · `webcodecs` · `share-links`
+
+---
 
 ## 👤 Creator
 
@@ -122,18 +114,15 @@ Built by **[Maher Khan](https://digimarketingstudio.com)** — AI educator, no-c
 - 🛠️ 28+ AI-powered tools built · 20,000+ professionals trained
 - 💼 [LinkedIn](https://www.linkedin.com/in/mahersocialmediastrategistus) · [GitHub](https://github.com/maherkhan-builds) · [Instagram](https://www.instagram.com/social.icm) · [Book a call](https://calendly.com/digitalpoles/let-s-meet-up)
 
-Part of the **Maher Magic** series of AI & web apps. ✨
-
-## 🤖 How It Was Built
-
-Designed and built end-to-end with **[Claude Code](https://claude.com/claude-code)** (Anthropic) — from the MediaRecorder capture pipeline and live annotation compositor to the zero-dependency Node.js share server.
+Part of the **Maher Magic** series of AI & web apps. ✨ Designed and built end-to-end with **[Claude Code](https://claude.com/claude-code)** (Anthropic) — from the MediaRecorder capture pipeline and live annotation compositor to the zero-dependency Node.js share server.
 
 ## 📄 License
 
 [MIT](LICENSE) — free to use, learn from, and build on.
 
 <div align="center">
-
-`screen-recorder` `loom-alternative` `privacy-first` `local-first` `pwa` `screen-recording` `video-annotation` `web-audio-api` `mediarecorder` `claude-code`
-
+  <h3>Record it. Draw on it. Share it — without leaving your network.</h3>
+  <p>If MaherCast sparks an idea, drop the repo a ⭐</p>
 </div>
+
+![MaherCast footer](https://capsule-render.vercel.app/api?type=waving&height=150&section=footer&color=gradient&customColorList=6,11,15,20&animation=twinkling)
