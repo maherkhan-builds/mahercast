@@ -408,12 +408,17 @@ async function retakeRecording() {
 }
 
 let retakeArmed = false;
+// Icon-only, same size as Pause/Stop — a text label here wraps to two lines
+// on narrow phones and, combined with the pill border-radius, balloons into
+// a big circle that reads as a broken/error state rather than a button.
 function armRetakeButton() {
   const btn = $('retakeBtn');
   if (!retakeArmed) {
     retakeArmed = true;
     btn.classList.add('confirm');
-    btn.textContent = '⚠️ Tap again';
+    btn.textContent = '✅';
+    btn.title = 'Tap again to confirm — this discards the current take';
+    toast('Tap 🔄 again to discard this take and start over — tap anywhere else to cancel', 2500);
     clearTimeout(state.retakeArmTimer);
     state.retakeArmTimer = setTimeout(disarmRetakeButton, 2500);
     return;
@@ -426,7 +431,8 @@ function disarmRetakeButton() {
   clearTimeout(state.retakeArmTimer);
   const btn = $('retakeBtn');
   btn.classList.remove('confirm');
-  btn.textContent = '🔄 Retake';
+  btn.textContent = '🔄';
+  btn.title = 'Retake — discard this take and record again from the top (tap twice to confirm)';
 }
 $('retakeBtn').addEventListener('click', armRetakeButton);
 
