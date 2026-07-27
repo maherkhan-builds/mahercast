@@ -919,5 +919,17 @@ const Studio = (() => {
     document.body.classList.remove('in-studio');
   }
 
-  return { start, stop, _state: S };
+  // For "Retake": clears whatever was drawn/said during the take that's
+  // being discarded (annotations, spotlight, live caption text) but keeps
+  // every setup choice (bubble shape/size/ring/filter, title tag, mode) so
+  // the next take starts clean without re-configuring anything.
+  function resetTake() {
+    S.annotations = [];
+    S.draft = null;
+    S.spotlight = null;
+    S.captions.text = '';
+    S.dragging = null;
+  }
+
+  return { start, stop, resetTake, _state: S };
 })();

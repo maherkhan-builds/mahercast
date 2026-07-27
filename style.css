@@ -229,6 +229,8 @@ main { max-width: 760px; margin: 0 auto; padding: 14px 16px; }
   padding: 8px 12px; border-radius: 99px; cursor: pointer;
 }
 .rec-bar button.stop { background: var(--red); font-weight: 700; }
+.rec-bar button#retakeBtn { font-size: 13px; font-weight: 600; }
+.rec-bar button#retakeBtn.confirm { background: #f5a623; color: #1a1300; font-weight: 700; }
 
 /* studio */
 .studio {
