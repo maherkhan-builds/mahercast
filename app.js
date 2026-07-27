@@ -321,11 +321,29 @@ async function startRecording() {
     titleTag: state.mode === 'overlay' ? $('overlayTitle').value : '',
   });
   const output = new MediaStream([...canvasStream.getVideoTracks(), ...stream.getAudioTracks()]);
+  // Kept for Retake: restarts just the encoder, reusing this same live
+  // background/camera setup instead of asking for the file/camera again.
+  state.stream = stream;
+  state.canvasStream = canvasStream;
+  state.output = output;
 
   if (state.mode === 'screen' && 'documentPictureInPicture' in window) {
     toast('📌 Tap the pin to pop your tools into a floating panel — it stays on top while you present', 7000);
   }
 
+  await startEncoding();
+
+  // Stop when user ends screen share from the browser's own UI
+  stream.getVideoTracks()[0].addEventListener('ended', () => { void stopRecordingNow(); });
+
+  $('recBar').hidden = false;
+  $('recordBtn').disabled = true;
+}
+
+// Starts (or restarts, for Retake) the actual encoder against whatever
+// canvasStream/output are currently set up — separated from startRecording()
+// so a retake never has to re-request the screen/camera/background file.
+async function startEncoding() {
   // When available, encode directly to real MP4 as you record (no slow
   // export step afterward — see live-encoder.js). Otherwise fall back to
   // MediaRecorder/webm exactly as before.
@@ -334,8 +352,8 @@ async function startRecording() {
   if (state.usingLiveMp4) {
     try {
       await LiveEncoder.start({
-        videoTrack: canvasStream.getVideoTracks()[0],
-        audioTrack: output.getAudioTracks()[0] || null,
+        videoTrack: state.canvasStream.getVideoTracks()[0],
+        audioTrack: state.output.getAudioTracks()[0] || null,
         width: Studio._state.W,
         height: Studio._state.H,
       });
@@ -348,7 +366,7 @@ async function startRecording() {
   if (!state.usingLiveMp4) {
     const mime = pickMime();
     state.chunks = [];
-    state.recorder = new MediaRecorder(output, mime ? { mimeType: mime } : undefined);
+    state.recorder = new MediaRecorder(state.output, mime ? { mimeType: mime } : undefined);
     state.recorder.ondataavailable = e => { if (e.data.size) state.chunks.push(e.data); };
     state.recorder.onstop = () => {
       const m = state.recorder.mimeType || 'video/webm';
@@ -356,18 +374,61 @@ async function startRecording() {
     };
     state.recorder.start(1000);
   }
-  // Stop when user ends screen share from the browser's own UI
-  stream.getVideoTracks()[0].addEventListener('ended', () => { void stopRecordingNow(); });
+
   state.startedAt = Date.now();
   state.pausedTotal = 0;
-
-  $('recBar').hidden = false;
-  $('recordBtn').disabled = true;
+  clearInterval(state.timerInt);
   state.timerInt = setInterval(() => {
     const active = state.usingLiveMp4 ? !state.isPaused : (state.recorder && state.recorder.state === 'recording');
     if (active) $('timer').textContent = fmt((Date.now() - state.startedAt - state.pausedTotal) / 1000);
   }, 250);
+  $('timer').textContent = '0:00';
 }
+
+// "Retake": discards whatever's been recorded so far without saving it, and
+// starts a brand-new take using the exact same background/camera/title
+// setup — no re-uploading the file, no reconfiguring anything.
+async function retakeRecording() {
+  if (state.usingLiveMp4) {
+    if (LiveEncoder.isRunning()) await LiveEncoder.stop(); // discard the blob
+  } else if (state.recorder && state.recorder.state !== 'inactive') {
+    state.recorder.onstop = null; // don't let the old handler save this take
+    state.recorder.stop();
+  }
+  clearInterval(state.timerInt);
+
+  Studio.resetTake();
+  if (state.overlayEl) {
+    try { state.overlayEl.currentTime = 0; await state.overlayEl.play(); } catch {}
+  }
+
+  if ($('countToggle').checked) await countdown();
+  await startEncoding();
+  toast('🔄 Retaking — recording again from the top');
+}
+
+let retakeArmed = false;
+function armRetakeButton() {
+  const btn = $('retakeBtn');
+  if (!retakeArmed) {
+    retakeArmed = true;
+    btn.classList.add('confirm');
+    btn.textContent = '⚠️ Tap again';
+    clearTimeout(state.retakeArmTimer);
+    state.retakeArmTimer = setTimeout(disarmRetakeButton, 2500);
+    return;
+  }
+  disarmRetakeButton();
+  void retakeRecording();
+}
+function disarmRetakeButton() {
+  retakeArmed = false;
+  clearTimeout(state.retakeArmTimer);
+  const btn = $('retakeBtn');
+  btn.classList.remove('confirm');
+  btn.textContent = '🔄 Retake';
+}
+$('retakeBtn').addEventListener('click', armRetakeButton);
 
 async function stopRecordingNow() {
   if (state.usingLiveMp4) {
@@ -385,6 +446,7 @@ async function finishRecording(blob, mime) {
   clearInterval(state.timerInt);
   const duration = (Date.now() - state.startedAt - state.pausedTotal) / 1000;
   state.chunks = [];
+  disarmRetakeButton();
   Studio.stop();
   state.streams.forEach(s => s.getTracks().forEach(t => t.stop()));
   state.streams = [];
@@ -562,6 +624,11 @@ $('shareLinkBtn').addEventListener('click', async () => {
     btn.textContent = '🔗 Copy share link';
     btn.disabled = false;
   }
+});
+
+$('recordAgainBtn').addEventListener('click', () => {
+  closePlayer();
+  void startRecording();
 });
 
 $('editBtn').addEventListener('click', () => {
