@@ -335,6 +335,19 @@ body.in-studio header, body.in-studio main { display: none; }
   cursor: pointer;
 }
 .filter-chip.active { background: var(--p); border-color: var(--p); }
+.shape-chip {
+  width: 42px; height: 42px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: transparent;
+  color: #fff;
+  font-size: 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.shape-chip.active { background: var(--p); border-color: var(--p); }
+.size-slider { width: 100%; accent-color: var(--p); margin: 2px 0 4px; }
+.shadow-toggle { margin: 10px 0 2px; font-size: 13px; }
 
 .pop-close {
   position: absolute;

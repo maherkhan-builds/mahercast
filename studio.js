@@ -47,7 +47,7 @@ const Studio = (() => {
     annotations: [],
     draft: null,
     spotlight: null,
-    bubble: { on: false, x: 0.84, y: 0.76, r: 0.13, ring: RINGS.purple, ringName: 'purple', filter: 'none' },
+    bubble: { on: false, x: 0.84, y: 0.76, r: 0.13, ring: RINGS.purple, ringName: 'purple', filter: 'none', shape: 'circle', shadow: true },
     camFilter: 'none',                  // camera-mode full-frame filter
     captions: { on: false, text: '', rec: null, supported: false },
     dragging: null,
@@ -78,6 +78,44 @@ const Studio = (() => {
     ctx.arcTo(x, y + h, x, y, r);
     ctx.arcTo(x, y, x + w, y, r);
     ctx.closePath();
+  }
+
+  // Rounds every corner of an arbitrary polygon by the given radius —
+  // used for the triangle bubble shape so it reads as "classy," not jagged.
+  function roundedPolygonPath(ctx, pts, radius) {
+    const n = pts.length;
+    for (let i = 0; i < n; i++) {
+      const p0 = pts[(i + n - 1) % n], p1 = pts[i], p2 = pts[(i + 1) % n];
+      const v1x = p0[0] - p1[0], v1y = p0[1] - p1[1];
+      const v2x = p2[0] - p1[0], v2y = p2[1] - p1[1];
+      const len1 = Math.hypot(v1x, v1y) || 1, len2 = Math.hypot(v2x, v2y) || 1;
+      const rad = Math.min(radius, len1 / 2, len2 / 2);
+      const a1x = p1[0] + (v1x / len1) * rad, a1y = p1[1] + (v1y / len1) * rad;
+      const a2x = p1[0] + (v2x / len2) * rad, a2y = p1[1] + (v2y / len2) * rad;
+      if (i === 0) ctx.moveTo(a1x, a1y); else ctx.lineTo(a1x, a1y);
+      ctx.arcTo(p1[0], p1[1], a2x, a2y, rad);
+    }
+    ctx.closePath();
+  }
+
+  // Builds the bubble's outline path for whichever shape is selected — used
+  // identically for clipping the camera feed and for drawing the ring, so
+  // they always match exactly regardless of shape.
+  function bubbleShapePath(ctx, cx, cy, r, shape) {
+    ctx.beginPath();
+    if (shape === 'square') {
+      const s = r * 0.92;
+      rr(ctx, cx - s, cy - s, s * 2, s * 2, s * 0.28);
+    } else if (shape === 'triangle') {
+      const s = r * 1.25;
+      roundedPolygonPath(ctx, [
+        [cx, cy - s],
+        [cx + s * 0.866, cy + s * 0.5],
+        [cx - s * 0.866, cy + s * 0.5],
+      ], r * 0.22);
+    } else {
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    }
   }
 
   function wrapText(ctx, text, maxW) {
@@ -231,11 +269,24 @@ const Studio = (() => {
     const r = b.r * Math.min(S.W, S.H);
     const cx = b.x * S.W, cy = b.y * S.H;
     const t = performance.now() / 1000;
+    const shape = b.shape || 'circle';
 
-    // face video, circular clip, mirrored, cover-fit
+    // floating drop-shadow, drawn first so it reads as depth behind the
+    // bubble rather than a tint over the video content itself
+    if (b.shadow !== false) {
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 26 * k;
+      ctx.shadowOffsetY = 12 * k;
+      ctx.fillStyle = '#000';
+      bubbleShapePath(ctx, cx, cy, r, shape);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // face video, shape clip, mirrored, cover-fit
     ctx.save();
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    bubbleShapePath(ctx, cx, cy, r, shape);
     ctx.clip();
     const vw = S.camVideo.videoWidth || 640, vh = S.camVideo.videoHeight || 480;
     const cover = Math.max((r * 2) / vw, (r * 2) / vh) * 1.02;
@@ -263,8 +314,7 @@ const Studio = (() => {
     const ring = b.ring;
     ctx.save();
     ctx.lineWidth = 7 * k;
-    ctx.beginPath();
-    ctx.arc(cx, cy, r + 3.5 * k, 0, Math.PI * 2);
+    bubbleShapePath(ctx, cx, cy, r + 3.5 * k, shape);
     if (ring.kind === 'solid') {
       ctx.strokeStyle = ring.colors[0];
       ctx.stroke();
@@ -658,12 +708,36 @@ const Studio = (() => {
     }
   }
 
+  const SHAPES = { circle: '⭕', square: '▢', triangle: '🔺' };
+
   function buildStylePopover() {
     const pop = document.getElementById('stylePop');
     const ringRow = pop.querySelector('#ringRow');
     const filterRow = pop.querySelector('#filterRow');
+    const shapeRow = pop.querySelector('#shapeRow');
     ringRow.innerHTML = '';
     filterRow.innerHTML = '';
+    shapeRow.innerHTML = '';
+
+    for (const key of Object.keys(SHAPES)) {
+      const chip = document.createElement('button');
+      chip.className = 'shape-chip' + ((S.bubble.shape || 'circle') === key ? ' active' : '');
+      chip.textContent = SHAPES[key];
+      chip.title = key;
+      chip.onclick = () => {
+        S.bubble.shape = key;
+        shapeRow.querySelectorAll('.shape-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+      };
+      shapeRow.appendChild(chip);
+    }
+    const sizeSlider = pop.querySelector('#bubbleSize');
+    sizeSlider.value = S.bubble.r;
+    sizeSlider.oninput = () => { S.bubble.r = parseFloat(sizeSlider.value); };
+    const shadowToggle = pop.querySelector('#bubbleShadowToggle');
+    shadowToggle.checked = S.bubble.shadow !== false;
+    shadowToggle.onchange = () => { S.bubble.shadow = shadowToggle.checked; };
+
     const ringCSS = {
       purple: '#625df5', red: '#e5484d', teal: '#12b886', white: '#fff',
       sunset: 'linear-gradient(135deg,#ff6b6b,#feca57,#ff9ff3)',
@@ -713,7 +787,7 @@ const Studio = (() => {
       };
       filterRow.appendChild(chip);
     }
-    pop.querySelector('#ringSection').hidden = !(S.mode === 'screen' && S.bubble.on);
+    pop.querySelector('#ringSection').hidden = !((S.mode === 'screen' || S.mode === 'overlay') && S.bubble.on);
   }
 
   function wire() {
@@ -764,9 +838,11 @@ const Studio = (() => {
     S.bubble.on = (mode === 'screen' || mode === 'overlay') && !!camStream;
     if (mode === 'overlay') {
       // Overlay mode is presenter-first (like a Reel) — the bubble is the
-      // main subject, so it defaults large and centered instead of the
+      // main subject, so it defaults centered near the bottom instead of the
       // small corner bubble used while narrating over a screen recording.
-      S.bubble.x = 0.5; S.bubble.y = 0.78; S.bubble.r = 0.22;
+      // Sized for portrait 9:16 video (where min(W,H) is the width) so it
+      // doesn't dominate the frame — adjustable live via the size slider.
+      S.bubble.x = 0.5; S.bubble.y = 0.78; S.bubble.r = 0.15;
     }
 
     S.srcVideo = document.createElement('video');

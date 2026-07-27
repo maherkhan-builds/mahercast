@@ -56,7 +56,7 @@ Built for educators and explainer videos. Everything below is composited live on
 | 📝 💬 Notes | Tap to type a note box or speech bubble; undo (↩️) or clear all (🧹) the moment you move to the next topic |
 | 🔦 Focus spotlight | Drag over an area — the rest of the screen turns to frosted glass while your selection stays crystal clear; drag to move it, tap to remove |
 | 💬 Live captions | One-tap CC button — your speech becomes captions burned into the video (Web Speech API) |
-| 🫧 Bubble styles | Ring colors, gradients (sunset, ocean, candy), 🌈 rainbow, ✨ glow, 🔥 animated fire, ☁️ cloud — plus a custom color picker |
+| 🫧 Bubble styles | Shape (⭕ circle / ▢ rounded square / 🔺 rounded triangle), a size slider so it's never too big or small for the platform you're posting to, a soft floating drop-shadow (toggle on/off), ring colors, gradients (sunset, ocean, candy), 🌈 rainbow, ✨ glow, 🔥 animated fire, ☁️ cloud — plus a custom color picker |
 | 😎 Face filters | Clear skin, background blur, warm, cool, B&W, vintage, vivid, neon, comic — applied to your camera bubble (or the whole frame in camera mode) |
 | 🎬 Keeps rolling | A worker-based ticker keeps compositing even when the tab is in the background while you present another app |
 | 📌 Pop-out presenter panel | One tap floats your tools + a live preview in a small always-on-top window (Document Picture-in-Picture). Toggle between a tall or wide layout depending on how you like to work. Draw on the panel's own preview — annotations land in the video at the same relative spot; the panel itself never does (unless you share "entire screen" instead of a window/tab) |

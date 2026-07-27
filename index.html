@@ -130,6 +130,14 @@
     <div class="popover" id="stylePop" hidden>
       <button class="pop-close" id="stylePopClose">✕ Done</button>
       <div id="ringSection">
+        <h3>Bubble shape</h3>
+        <div class="chip-row" id="shapeRow"></div>
+        <h3>Bubble size</h3>
+        <input type="range" id="bubbleSize" class="size-slider" min="0.08" max="0.32" step="0.005">
+        <label class="toggle shadow-toggle">
+          <input type="checkbox" id="bubbleShadowToggle" checked>
+          <span class="slider"></span> Floating shadow
+        </label>
         <h3>Bubble ring</h3>
         <div class="chip-row" id="ringRow"></div>
       </div>
