@@ -328,7 +328,7 @@ async function startRecording() {
   state.output = output;
 
   if (state.mode === 'screen' && 'documentPictureInPicture' in window) {
-    toast('📌 Tap the pin to pop your tools into a floating panel — it stays on top while you present', 7000);
+    $('popoutPrompt').hidden = false;
   }
 
   await startEncoding();
@@ -453,6 +453,7 @@ async function finishRecording(blob, mime) {
   const duration = (Date.now() - state.startedAt - state.pausedTotal) / 1000;
   state.chunks = [];
   disarmRetakeButton();
+  $('popoutPrompt').hidden = true;
   Studio.stop();
   state.streams.forEach(s => s.getTracks().forEach(t => t.stop()));
   state.streams = [];
@@ -668,4 +669,10 @@ $('deleteBtn').addEventListener('click', async () => {
 /* ---------- boot ---------- */
 $('esCancel').addEventListener('click', () => { $('entireScreenModal').hidden = true; });
 $('esRetry').addEventListener('click', () => { $('entireScreenModal').hidden = true; startRecording(); });
+
+$('popoutPromptGo').addEventListener('click', () => {
+  $('popoutPrompt').hidden = true;
+  Studio.openPanel(); // a direct click, so the browser allows the pop-out window
+});
+$('popoutPromptDismiss').addEventListener('click', () => { $('popoutPrompt').hidden = true; });
 openDB().then(renderLibrary).catch(e => toast('Storage error: ' + e.message));

@@ -916,6 +916,7 @@ const Studio = (() => {
     document.getElementById('studio').hidden = true;
     document.getElementById('noteInput').hidden = true;
     document.getElementById('stylePop').hidden = true;
+    document.getElementById('popoutPrompt').hidden = true;
     document.body.classList.remove('in-studio');
   }
 
@@ -931,5 +932,5 @@ const Studio = (() => {
     S.dragging = null;
   }
 
-  return { start, stop, resetTake, _state: S };
+  return { start, stop, resetTake, openPanel, _state: S };
 })();

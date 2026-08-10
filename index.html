@@ -52,7 +52,7 @@
           <span class="slider"></span> Microphone
         </label>
         <label class="toggle" id="bubbleToggleWrap">
-          <input type="checkbox" id="bubbleToggle">
+          <input type="checkbox" id="bubbleToggle" checked>
           <span class="slider"></span> Camera bubble
         </label>
         <label class="toggle">
@@ -60,7 +60,7 @@
           <span class="slider"></span> 3-2-1 countdown
         </label>
       </div>
-      <p class="mode-hint" id="pickerTip">💡 <b>How to present:</b> when the share window opens, choose <b>Window</b> or <b>Chrome Tab</b> and pick your teaching content — never "Entire Screen" (blocked, it causes a mirror effect) and never MaherCast itself. Then tap <b>📌</b> in the toolbar: your tools pop into a small floating panel that <b>stays on top of everything</b> while you present. Draw on its preview — annotations land in the video, the panel itself never does.</p>
+      <p class="mode-hint" id="pickerTip">💡 <b>How to present:</b> when the share window opens, choose <b>Window</b> or <b>Chrome Tab</b> and pick your teaching content — never "Entire Screen" (blocked, it causes a mirror effect) and never MaherCast itself. The moment recording starts, you'll be prompted to <b>pop your face bubble + tools out</b> into a small panel that <b>floats on top of whatever you're presenting</b> — no switching tabs to reach them. Draw on its preview — annotations land in the video, the panel itself never does.</p>
 
       <button class="record-btn" id="recordBtn">
         <span class="dot"></span> Start Recording
@@ -107,6 +107,14 @@
     <button id="pauseBtn" title="Pause">⏸</button>
     <button id="retakeBtn" title="Retake — discard this take and record again from the top (tap twice to confirm)">🔄</button>
     <button id="stopBtn" class="stop" title="Stop">⏹ Stop</button>
+  </div>
+
+  <!-- prompts popping the tools/face-bubble out so they follow you while you
+       present other windows — shown right when Screen recording starts -->
+  <div class="popout-prompt" id="popoutPrompt" hidden>
+    <span class="pp-text">🪄 Pop your face bubble + tools out so they float on top of whatever you present</span>
+    <button class="pp-go" id="popoutPromptGo">📌 Pop out now</button>
+    <button class="pp-dismiss" id="popoutPromptDismiss" title="Dismiss">✕</button>
   </div>
 
   <!-- studio: live composited preview + annotation tools -->
