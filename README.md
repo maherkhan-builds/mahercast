@@ -37,7 +37,7 @@ MaherCast is a complete recording studio — screen or camera capture, **live an
 | 🖥️ Screen + 🤳 camera recording | Capture your screen with mic/system audio, or record talking-head video on any device — including iPhone |
 | 🎬 Overlay mode | Reels-style process videos: a background photo/video with a live camera bubble talking on top — no screen capture needed, works on iPhone |
 | 🪄 Live studio tools | Glowing magic pencil, arrows/shapes, sticky notes & speech bubbles, focus spotlight, and live captions — all composited straight into the recording as you talk |
-| 📌 Pop-out presenter panel | Floats your tools + face bubble + a live preview in an always-on-top window that follows you across every app — prompted automatically the moment Screen recording starts, one tap to activate. Draw on it while it stays outside the recording itself |
+| 📌 Pop-out presenter panel | Floats your tools + face bubble in an always-on-top window that follows you across every app — prompted automatically the moment Screen recording starts. Opens as a slim, tools-only footer bar by default; the drawing preview only appears when you pick a tool that needs it (pencil, shapes, notes, spotlight), and you can show/hide it any time with ⌄/⌃ |
 | ⏯️ Recording controls | 3-2-1 countdown, pause/resume, live timer, and one-tap Retake that discards a bad take and starts over instantly |
 | ✂️ Built-in editor | Trim the start/end, add attention-zooms that smoothly zoom in and hold, layer background music with independent volume + auto fade-out |
 | 💾 Real `.mp4` export | Encodes live via WebCodecs to a genuine H.264/AAC `.mp4` — opens cleanly in CapCut, WhatsApp, Premiere, DaVinci, and iPhone with no conversion |

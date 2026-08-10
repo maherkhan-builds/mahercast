@@ -589,36 +589,46 @@ const Studio = (() => {
   }
 
   /* ---------- pop-out presenter panel (Document Picture-in-Picture) ---------- */
+  // Tools that need you to click somewhere specific — these are the only
+  // ones that require the mini preview to be visible.
+  const DRAWING_TOOLS = ['pen', 'rect', 'arrow', 'note', 'speech', 'spot'];
+
   async function openPanel() {
     if (!('documentPictureInPicture' in window)) return;
     if (S.pip) { try { S.pip.win.close(); } catch {} S.pip = null; return; }
     const aspect = S.W / S.H;
     const sizes = {
+      compact: { w: 380, h: 100 },
       tall: { w: 380, h: Math.round(380 / aspect) + 150 },
       wide: { w: 620, h: Math.round(620 / aspect * 0.55) + 96 },
     };
     let layout = 'tall';
-    const win = await documentPictureInPicture.requestWindow({ width: sizes.tall.w, height: sizes.tall.h });
+    let collapsed = true; // starts as a slim tools-only footer bar, not the preview
+    const win = await documentPictureInPicture.requestWindow({ width: sizes.compact.w, height: sizes.compact.h });
     const doc = win.document;
     doc.head.innerHTML = `<meta charset="utf-8"><style>
       *{box-sizing:border-box;margin:0}
       body{background:#0c0d12;color:#fff;font-family:system-ui,sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;user-select:none}
       body.wide{flex-direction:row}
+      body.collapsed{flex-direction:column}
       .hd{display:flex;align-items:center;gap:6px;padding:7px 8px;flex-shrink:0}
-      body.wide .hd{flex-direction:column;height:100%;padding:8px 6px}
+      body.wide:not(.collapsed) .hd{flex-direction:column;height:100%;padding:8px 6px}
       .dot{width:9px;height:9px;border-radius:50%;background:#e5484d;animation:bl 1.2s infinite;flex-shrink:0}
       @keyframes bl{50%{opacity:.2}}
       .tm{font-weight:700;font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
       .sp{flex:1}
-      body.wide .sp{display:none}
+      body.wide:not(.collapsed) .sp{display:none}
       .hd button{border:0;border-radius:99px;color:#fff;font:inherit;font-size:12px;padding:6px 10px;cursor:pointer;background:rgba(255,255,255,.14);white-space:nowrap}
       .hd .stop{background:#e5484d;font-weight:700}
       .hd .layout{font-size:14px;padding:6px 9px}
+      .hd .expand{font-size:13px;padding:6px 9px;background:rgba(98,93,245,.35)}
+      body.collapsed .stageWrap, body.collapsed .tip{display:none}
+      body.collapsed .hd .layout{display:none}
       .stageWrap{flex:1;min-height:0;min-width:0;display:flex;align-items:center;justify-content:center;position:relative;padding:4px}
       canvas{max-width:100%;max-height:100%;display:block;background:#000;touch-action:none}
       .tip{position:absolute;top:8px;left:8px;right:8px;background:rgba(98,93,245,.92);color:#fff;font-size:11px;font-weight:600;padding:6px 9px;border-radius:8px;pointer-events:none;text-align:center}
       .tools{display:flex;flex-wrap:wrap;gap:4px;padding:6px 8px;align-items:center;flex-shrink:0}
-      body.wide .tools{flex-direction:column;width:56px;overflow-y:auto}
+      body.wide:not(.collapsed) .tools{flex-direction:column;width:56px;overflow-y:auto}
       .tools button{width:33px;height:33px;border-radius:50%;border:0;background:rgba(255,255,255,.09);color:#fff;font-size:14px;cursor:pointer;flex-shrink:0}
       .tools button.active{background:#625df5}
       .tools #ccBtn{font-size:11px;font-weight:800}
@@ -627,9 +637,11 @@ const Studio = (() => {
       .nb[hidden]{display:none}
       .nb input{flex:1;border:2px solid #625df5;border-radius:8px;background:#1c1d28;color:#fff;padding:7px 9px;font:inherit;font-size:13px;outline:none}
     </style>`;
+    doc.body.className = 'collapsed';
     doc.body.innerHTML = `
       <div class="hd">
         <span class="dot"></span><span class="tm" id="pipTimer">0:00</span><span class="sp"></span>
+        <button class="expand" id="pipExpand" title="Show the drawing preview">⌄</button>
         <button class="layout" id="pipLayout" title="Switch to a wide bar layout">↔</button>
         <button id="pipPause" title="Pause / resume">⏸</button>
         <button class="stop" id="pipStop">⏹</button>
@@ -677,8 +689,18 @@ const Studio = (() => {
       layout = layout === 'tall' ? 'wide' : 'tall';
       doc.body.classList.toggle('wide', layout === 'wide');
       doc.getElementById('pipLayout').textContent = layout === 'wide' ? '↕' : '↔';
-      try { win.resizeTo(sizes[layout].w, sizes[layout].h); } catch {}
+      if (!collapsed) { try { win.resizeTo(sizes[layout].w, sizes[layout].h); } catch {} }
     });
+    function setCollapsed(next) {
+      collapsed = next;
+      doc.body.classList.toggle('collapsed', collapsed);
+      const btn = doc.getElementById('pipExpand');
+      btn.textContent = collapsed ? '⌄' : '⌃';
+      btn.title = collapsed ? 'Show the drawing preview' : 'Hide the preview — footer tools only';
+      const target = collapsed ? sizes.compact : sizes[layout];
+      try { win.resizeTo(target.w, target.h); } catch {}
+    }
+    doc.getElementById('pipExpand').addEventListener('click', () => setCollapsed(!collapsed));
     const tip = doc.getElementById('pipTip');
     setTimeout(() => { tip.style.display = 'none'; }, 5000);
     cv.addEventListener('pointerdown', () => { tip.style.display = 'none'; }, { once: true });
@@ -693,6 +715,8 @@ const Studio = (() => {
       win, canvas: cv, ctx: cv.getContext('2d'),
       timerEl: doc.getElementById('pipTimer'),
       pauseEl: doc.getElementById('pipPause'),
+      isCollapsed: () => collapsed,
+      setCollapsed,
     };
     setTool(S.tool);
     doc.getElementById('ccBtn').classList.toggle('active', S.captions.on);
@@ -705,6 +729,12 @@ const Studio = (() => {
       doc.querySelectorAll('.tl[data-tool]').forEach(b => b.classList.toggle('active', b.dataset.tool === tool));
       const cv = doc.getElementById(doc === document ? 'stage' : 'pipStage');
       if (cv) cv.style.cursor = tool === 'move' ? 'grab' : 'crosshair';
+    }
+    // The footer-only panel has nowhere to click for drawing tools — expand
+    // it automatically the moment one is picked, so you don't have to
+    // remember to reveal the preview yourself.
+    if (S.pip && S.pip.isCollapsed() && DRAWING_TOOLS.includes(tool)) {
+      S.pip.setCollapsed(false);
     }
   }
 
