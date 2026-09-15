@@ -436,7 +436,7 @@ const Studio = (() => {
       try {
         S.pip.ctx.drawImage(S.canvas, 0, 0);
         S.pip.timerEl.textContent = document.getElementById('timer').textContent;
-        S.pip.pauseEl.textContent = document.getElementById('pauseBtn').textContent;
+        S.pip.pauseEl.textContent = document.getElementById('pauseBtn').textContent.includes('▶') ? 'Resume' : 'Pause';
       } catch {}
     }
   }
@@ -598,9 +598,9 @@ const Studio = (() => {
     if (S.pip) { try { S.pip.win.close(); } catch {} S.pip = null; return; }
     const aspect = S.W / S.H;
     const sizes = {
-      compact: { w: 380, h: 100 },
-      tall: { w: 380, h: Math.round(380 / aspect) + 150 },
-      wide: { w: 620, h: Math.round(620 / aspect * 0.55) + 96 },
+      compact: { w: 430, h: 66 },
+      tall: { w: 420, h: Math.round(420 / aspect) + 154 },
+      wide: { w: 760, h: Math.round(760 / aspect * 0.5) + 92 },
     };
     let layout = 'tall';
     let collapsed = true; // starts as a slim tools-only footer bar, not the preview
@@ -608,43 +608,48 @@ const Studio = (() => {
     const doc = win.document;
     doc.head.innerHTML = `<meta charset="utf-8"><style>
       *{box-sizing:border-box;margin:0}
-      body{background:#0c0d12;color:#fff;font-family:system-ui,sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;user-select:none}
+      body{background:#171a16;color:#f5f3ea;font-family:"Segoe UI Variable","Segoe UI",sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;user-select:none}
       body.wide{flex-direction:row}
       body.collapsed{flex-direction:column}
-      .hd{display:flex;align-items:center;gap:6px;padding:7px 8px;flex-shrink:0}
+      .hd{display:flex;align-items:center;gap:6px;padding:8px;flex-shrink:0;min-height:58px}
       body.wide:not(.collapsed) .hd{flex-direction:column;height:100%;padding:8px 6px}
-      .dot{width:9px;height:9px;border-radius:50%;background:#e5484d;animation:bl 1.2s infinite;flex-shrink:0}
+      .dot{width:10px;height:10px;border-radius:50%;background:#ff5a36;animation:bl 1.2s infinite;flex-shrink:0;box-shadow:0 0 0 5px rgba(255,90,54,.12)}
       @keyframes bl{50%{opacity:.2}}
-      .tm{font-weight:700;font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+      .tm{font-weight:750;font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap;margin-left:4px}
       .sp{flex:1}
       body.wide:not(.collapsed) .sp{display:none}
-      .hd button{border:0;border-radius:99px;color:#fff;font:inherit;font-size:12px;padding:6px 10px;cursor:pointer;background:rgba(255,255,255,.14);white-space:nowrap}
-      .hd .stop{background:#e5484d;font-weight:700}
+      .hd button{border:0;border-radius:8px;color:#f5f3ea;font:inherit;font-size:12px;font-weight:650;padding:9px 11px;cursor:pointer;background:#2a2f28;white-space:nowrap}
+      .hd button:hover{background:#363c33}
+      .hd .stop{background:#ff5a36;color:#1b120f;font-weight:750}
+      .hd .retake{background:#3a3e36}
       .hd .layout{font-size:14px;padding:6px 9px}
-      .hd .expand{font-size:13px;padding:6px 9px;background:rgba(98,93,245,.35)}
+      .hd .expand{font-size:12px;padding:9px 12px;background:#22c7d6;color:#101614}
       body.collapsed .stageWrap, body.collapsed .tip{display:none}
       body.collapsed .hd .layout{display:none}
+      body.collapsed .tools{display:none}
       .stageWrap{flex:1;min-height:0;min-width:0;display:flex;align-items:center;justify-content:center;position:relative;padding:4px}
       canvas{max-width:100%;max-height:100%;display:block;background:#000;touch-action:none}
-      .tip{position:absolute;top:8px;left:8px;right:8px;background:rgba(98,93,245,.92);color:#fff;font-size:11px;font-weight:600;padding:6px 9px;border-radius:8px;pointer-events:none;text-align:center}
+      .tip{position:absolute;top:8px;left:8px;right:8px;background:#22c7d6;color:#101614;font-size:11px;font-weight:700;padding:7px 9px;border-radius:8px;pointer-events:none;text-align:center}
       .tools{display:flex;flex-wrap:wrap;gap:4px;padding:6px 8px;align-items:center;flex-shrink:0}
       body.wide:not(.collapsed) .tools{flex-direction:column;width:56px;overflow-y:auto}
-      .tools button{width:33px;height:33px;border-radius:50%;border:0;background:rgba(255,255,255,.09);color:#fff;font-size:14px;cursor:pointer;flex-shrink:0}
-      .tools button.active{background:#625df5}
+      .tools button{width:34px;height:34px;border-radius:8px;border:0;background:#2a2f28;color:#f5f3ea;font-size:14px;cursor:pointer;flex-shrink:0}
+      .tools button.active{background:#22c7d6;color:#101614}
       .tools #ccBtn{font-size:11px;font-weight:800}
       .tools input[type=color]{width:24px;height:24px;border:0;border-radius:50%;padding:0;background:none;cursor:pointer;flex-shrink:0}
       .nb{display:flex;gap:6px;padding:0 8px 8px;flex-shrink:0}
       .nb[hidden]{display:none}
-      .nb input{flex:1;border:2px solid #625df5;border-radius:8px;background:#1c1d28;color:#fff;padding:7px 9px;font:inherit;font-size:13px;outline:none}
+      .nb input{flex:1;border:2px solid #22c7d6;border-radius:8px;background:#22261f;color:#fff;padding:7px 9px;font:inherit;font-size:13px;outline:none}
+      button:focus-visible,input:focus-visible{outline:3px solid #22c7d6;outline-offset:2px}
     </style>`;
     doc.body.className = 'collapsed';
     doc.body.innerHTML = `
       <div class="hd">
         <span class="dot"></span><span class="tm" id="pipTimer">0:00</span><span class="sp"></span>
-        <button class="expand" id="pipExpand" title="Show the drawing preview">⌄</button>
+        <button class="expand" id="pipExpand" title="Show annotation tools">Annotate</button>
         <button class="layout" id="pipLayout" title="Switch to a wide bar layout">↔</button>
-        <button id="pipPause" title="Pause / resume">⏸</button>
-        <button class="stop" id="pipStop">⏹</button>
+        <button id="pipPause" title="Pause or resume recording">Pause</button>
+        <button class="retake" id="pipRetake" title="Retake from the beginning">Retake</button>
+        <button class="stop" id="pipStop">Stop</button>
       </div>
       <div class="stageWrap">
         <canvas id="pipStage" width="${S.W}" height="${S.H}"></canvas>
@@ -684,6 +689,7 @@ const Studio = (() => {
       document.getElementById('penColor').value = e.target.value;
     });
     doc.getElementById('pipPause').addEventListener('click', () => document.getElementById('pauseBtn').click());
+    doc.getElementById('pipRetake').addEventListener('click', () => document.getElementById('retakeBtn').click());
     doc.getElementById('pipStop').addEventListener('click', () => document.getElementById('stopBtn').click());
     doc.getElementById('pipLayout').addEventListener('click', () => {
       layout = layout === 'tall' ? 'wide' : 'tall';
@@ -695,8 +701,8 @@ const Studio = (() => {
       collapsed = next;
       doc.body.classList.toggle('collapsed', collapsed);
       const btn = doc.getElementById('pipExpand');
-      btn.textContent = collapsed ? '⌄' : '⌃';
-      btn.title = collapsed ? 'Show the drawing preview' : 'Hide the preview — footer tools only';
+      btn.textContent = collapsed ? 'Annotate' : 'Hide preview';
+      btn.title = collapsed ? 'Show annotation tools and preview' : 'Return to the compact control rail';
       const target = collapsed ? sizes.compact : sizes[layout];
       try { win.resizeTo(target.w, target.h); } catch {}
     }

@@ -247,13 +247,22 @@ function lanIPs() {
     .filter(i => i && i.family === 'IPv4' && !i.internal).map(i => i.address);
 }
 
-https.createServer({
-  key: fs.readFileSync(path.join(ROOT, 'key.pem')),
-  cert: fs.readFileSync(path.join(ROOT, 'cert.pem')),
-}, handle).listen(HTTPS_PORT, () => {
+const keyPath = path.join(ROOT, 'key.pem');
+const certPath = path.join(ROOT, 'cert.pem');
+
+http.createServer(handle).listen(HTTP_PORT, () => {
   console.log('MaherCast is running!');
   console.log(`  On this PC:    http://localhost:${HTTP_PORT}`);
-  for (const ip of lanIPs()) console.log(`  On your phone: https://${ip}:${HTTPS_PORT}`);
 });
 
-http.createServer(handle).listen(HTTP_PORT);
+if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
+  https.createServer({
+    key: fs.readFileSync(keyPath),
+    cert: fs.readFileSync(certPath),
+  }, handle).listen(HTTPS_PORT, () => {
+    for (const ip of lanIPs()) console.log(`  On your phone: https://${ip}:${HTTPS_PORT}`);
+  });
+} else {
+  console.warn('  Phone access is off: key.pem and cert.pem were not found.');
+  console.warn('  Desktop recording still works. See README.md to enable HTTPS for phones.');
+}

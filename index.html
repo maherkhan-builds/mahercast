@@ -6,26 +6,48 @@
   <title>MaherCast — Screen Recorder</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <meta name="theme-color" content="#625df5">
+  <meta name="theme-color" content="#111310">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="apple-touch-icon" href="icon.svg">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <div class="logo">🎥 MaherCast</div>
-    <div class="tagline">Record. Share. Locally.</div>
+  <!--
+  THESIS: MaherCast is a recording control bay that protects the creator's working canvas; it refuses the generic centered recorder card.
+  OWN-WORLD: Ink-black console surfaces, warm white copy, signal orange record states, cyan operational states, tight rails, and labeled hardware-like controls.
+  STORY: Choose a source, confirm the desktop control path, record without losing the editing app, then retrieve the local result.
+  FIRST VIEWPORT: A narrow brand rail, a large central capture bay, and a desktop readiness column; the signal-orange record action anchors the lower center.
+  FORM: Desktop control dock, grounded direction 7; seed 109478ff.
+  FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+  -->
+  <header class="app-header">
+    <a class="brand" href="./" aria-label="MaherCast home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" role="img"><path d="M6 9.5h13a4 4 0 0 1 4 4v5a4 4 0 0 1-4 4H6z"/><path d="m23 14 5-3v10l-5-3z"/></svg>
+      </span>
+      <span>MaherCast</span>
+    </a>
+    <p>Private recording studio</p>
+    <div class="privacy-state"><span></span> Stored on this device</div>
   </header>
 
-  <main>
-    <section class="card recorder-card">
-      <div class="tabs" id="modeTabs">
-        <button class="tab active" data-mode="screen" id="tabScreen">🖥️ Screen</button>
-        <button class="tab" data-mode="camera" id="tabCamera">🤳 Camera</button>
-        <button class="tab" data-mode="overlay" id="tabOverlay">🎬 Overlay</button>
+  <main class="app-shell">
+    <section class="recorder-card" aria-labelledby="recordHeading">
+      <div class="section-heading">
+        <div>
+          <h1 id="recordHeading">What are you recording?</h1>
+          <p>Choose a source. MaherCast keeps the controls close and the footage local.</p>
+        </div>
+        <span class="format-badge">MP4 READY</span>
       </div>
 
-      <p class="mode-hint" id="modeHint">Records your screen — switch apps, everything is captured.</p>
+      <div class="tabs" id="modeTabs" role="tablist" aria-label="Recording source">
+        <button class="tab active" role="tab" aria-selected="true" data-mode="screen" id="tabScreen"><span class="tab-icon" aria-hidden="true">▣</span><span><strong>Screen</strong><small>App or browser tab</small></span></button>
+        <button class="tab" role="tab" aria-selected="false" data-mode="camera" id="tabCamera"><span class="tab-icon" aria-hidden="true">●</span><span><strong>Camera</strong><small>Talking head</small></span></button>
+        <button class="tab" role="tab" aria-selected="false" data-mode="overlay" id="tabOverlay"><span class="tab-icon" aria-hidden="true">◇</span><span><strong>Overlay</strong><small>Camera on media</small></span></button>
+      </div>
+
+      <p class="mode-hint" id="modeHint">Records your screen. Switch apps; everything in the selected source is captured.</p>
 
       <div class="overlay-setup" id="overlaySetup" hidden>
         <label class="file-pick" for="overlayFile">
@@ -33,7 +55,7 @@
         </label>
         <input type="file" id="overlayFile" accept="image/*,video/*" hidden>
         <div id="overlayThumbWrap" hidden>
-          <img id="overlayThumb" alt="">
+          <img id="overlayThumb" src="icon.svg" alt="Selected overlay preview">
           <button id="overlayClear" title="Remove">✕</button>
         </div>
         <div class="field">
@@ -49,33 +71,56 @@
       <div class="toggles">
         <label class="toggle">
           <input type="checkbox" id="micToggle" checked>
-          <span class="slider"></span> Microphone
+          <span class="slider"></span><span>Microphone</span>
         </label>
         <label class="toggle" id="bubbleToggleWrap">
           <input type="checkbox" id="bubbleToggle" checked>
-          <span class="slider"></span> Camera bubble
+          <span class="slider"></span><span>Camera bubble</span>
         </label>
         <label class="toggle">
           <input type="checkbox" id="countToggle" checked>
-          <span class="slider"></span> 3-2-1 countdown
+          <span class="slider"></span><span>3-2-1 countdown</span>
         </label>
       </div>
-      <p class="mode-hint" id="pickerTip">💡 <b>How to present:</b> when the share window opens, choose <b>Window</b> or <b>Chrome Tab</b> and pick your teaching content — never "Entire Screen" (blocked, it causes a mirror effect) and never MaherCast itself. The moment recording starts, you'll be prompted to <b>pop your face bubble + tools out</b> into a small panel that <b>floats on top of whatever you're presenting</b> — no switching tabs to reach them. Draw on its preview — annotations land in the video, the panel itself never does.</p>
+      <div class="capture-rule" id="pickerTip">
+        <span class="rule-icon" aria-hidden="true">!</span>
+        <p><strong>Choose one app window or browser tab.</strong> Entire Screen is blocked because it records MaherCast and creates a mirror tunnel.</p>
+      </div>
 
       <button class="record-btn" id="recordBtn">
-        <span class="dot"></span> Start Recording
+        <span class="dot"></span><span>Start recording</span><span class="record-key">R</span>
       </button>
-      <p class="studio-hint">🪄 While recording: magic pencil, arrows, notes, focus spotlight, live captions, bubble styles &amp; face filters — all baked into your video.</p>
+      <p class="studio-hint">Pencil, arrows, notes, spotlight, captions, and camera styling are composited directly into the recording.</p>
       <p class="unsupported" id="unsupportedMsg" hidden>
-        ⚠️ Screen capture isn't available in this browser (iPhones don't allow it).
+        Screen capture isn't available in this browser (iPhones don't allow it).
         Camera and Overlay modes both work great here instead.
       </p>
     </section>
 
-    <section class="library">
-      <h2>My Library <span id="libCount"></span></h2>
+    <aside class="desktop-readiness" id="desktopReadiness" aria-labelledby="desktopHeading">
+      <div class="readiness-head">
+        <span class="status-light" id="dockStatusLight"></span>
+        <div><h2 id="desktopHeading">Desktop control dock</h2><p id="dockStatusText" aria-live="polite">Checking browser support…</p></div>
+      </div>
+      <div class="dock-demo" aria-hidden="true">
+        <div class="dock-screen"><span></span><span></span><span></span></div>
+        <div class="dock-rail"><i></i><b>00:00</b><i></i><i></i><em></em></div>
+      </div>
+      <ol class="desktop-steps">
+        <li><span>1</span><p><strong>Pick your editing window</strong><small>MaherCast keeps focus so the next step cannot hide behind it.</small></p></li>
+        <li><span>2</span><p><strong>Open the floating dock</strong><small>It stays above your editor and starts as a slim control rail.</small></p></li>
+        <li><span>3</span><p><strong>Place it on a quiet edge</strong><small>Drag it beside, not over, your app's tabs. Expand only when drawing.</small></p></li>
+      </ol>
+      <details>
+        <summary>Why can’t MaherCast position it for me?</summary>
+        <p>Browsers allow the floating window to stay on top, but only you can place it on your screen. This protects other apps from moving windows without permission.</p>
+      </details>
+    </aside>
+
+    <section class="library" aria-labelledby="libraryHeading">
+      <div class="library-heading"><h2 id="libraryHeading">Local library <span id="libCount"></span></h2><p>Recordings remain in this browser until you export or share them.</p></div>
       <div class="grid" id="libraryGrid"></div>
-      <p class="empty" id="libEmpty">No recordings yet. Hit that big purple button! 💜</p>
+      <div class="empty" id="libEmpty"><span aria-hidden="true">▶</span><p><strong>No recordings yet</strong><small>Your first take will appear here, ready to trim or download.</small></p></div>
     </section>
   </main>
 
@@ -112,9 +157,14 @@
   <!-- prompts popping the tools/face-bubble out so they follow you while you
        present other windows — shown right when Screen recording starts -->
   <div class="popout-prompt" id="popoutPrompt" hidden>
-    <span class="pp-text">🪄 Pop your face bubble + tools out so they float on top of whatever you present</span>
-    <button class="pp-go" id="popoutPromptGo">📌 Pop out now</button>
-    <button class="pp-dismiss" id="popoutPromptDismiss" title="Dismiss">✕</button>
+    <div class="pp-panel" role="dialog" aria-modal="true" aria-labelledby="dockPromptTitle">
+      <div class="pp-signal"><span></span> Source connected</div>
+      <h2 id="dockPromptTitle">Keep your controls above the editor.</h2>
+      <p class="pp-text">Open the compact control dock before returning to your editing app. It stays on top, so pause, retake, stop, and annotation tools do not disappear behind your panels.</p>
+      <div class="pp-layout" aria-hidden="true"><div></div><span><i></i><i></i><i></i><b></b></span></div>
+      <button class="pp-go" id="popoutPromptGo">Open floating controls</button>
+      <button class="pp-dismiss" id="popoutPromptDismiss">Keep controls in MaherCast</button>
+    </div>
   </div>
 
   <!-- studio: live composited preview + annotation tools -->

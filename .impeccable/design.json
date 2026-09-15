@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-14T00:00:00-07:00",
+  "title": "Design System: MaherCast",
+  "extensions": {
+    "colorMeta": {
+      "signal-orange": { "role": "primary", "displayName": "Signal Orange", "canonical": "#ff6a3d", "tonalRamp": ["#35130b", "#632314", "#91331e", "#c14427", "#ff6a3d", "#ff9274", "#ffc0ad", "#fff0ea"] },
+      "signal-orange-deep": { "role": "primary", "displayName": "Deep Signal Orange", "canonical": "#d94723", "tonalRamp": ["#2e1008", "#591c0e", "#842b15", "#b33a1d", "#d94723", "#ed795e", "#f5b5a5", "#fcece7"] },
+      "operational-cyan": { "role": "secondary", "displayName": "Operational Cyan", "canonical": "#22c7d6", "tonalRamp": ["#082b2e", "#0c4e54", "#11717a", "#1798a3", "#22c7d6", "#68dce5", "#acecf1", "#e9fafb"] },
+      "operational-cyan-deep": { "role": "secondary", "displayName": "Deep Operational Cyan", "canonical": "#119aa8", "tonalRamp": ["#062326", "#093f44", "#0c5c64", "#107d88", "#119aa8", "#5bc0c9", "#a3e0e5", "#e7f7f8"] },
+      "warm-paper": { "role": "neutral", "displayName": "Warm Paper", "canonical": "#f5f3ea", "tonalRamp": ["#292821", "#4b4940", "#706e62", "#969489", "#bdbbb1", "#d9d7cd", "#eceae1", "#f8f7f2"] },
+      "ink-black": { "role": "neutral", "displayName": "Ink Black", "canonical": "#111310", "tonalRamp": ["#111310", "#242720", "#393d34", "#55594e", "#777b6f", "#a0a398", "#d0d1c9", "#f2f3ee"] },
+      "console": { "role": "neutral", "displayName": "Console", "canonical": "#1a1d19", "tonalRamp": ["#121410", "#1a1d19", "#30342d", "#4d5148", "#70746a", "#9b9e94", "#cccec6", "#f2f3ee"] },
+      "console-raised": { "role": "neutral", "displayName": "Raised Console", "canonical": "#232721", "tonalRamp": ["#121510", "#232721", "#3a3f37", "#575c52", "#7a7f73", "#a3a69c", "#d1d3cb", "#f3f4ef"] },
+      "console-control": { "role": "neutral", "displayName": "Console Control", "canonical": "#2a2f28", "tonalRamp": ["#141711", "#2a2f28", "#41473e", "#5f655a", "#82877b", "#aaada4", "#d5d6d0", "#f4f5f1"] },
+      "structural-line": { "role": "neutral", "displayName": "Structural Line", "canonical": "#343832", "tonalRamp": ["#171916", "#343832", "#4e534b", "#6c7167", "#8f9489", "#b5b8b0", "#dadbd6", "#f5f6f3"] },
+      "muted-copy": { "role": "neutral", "displayName": "Muted Copy", "canonical": "#aaa99f", "tonalRamp": ["#24231f", "#45443e", "#68675f", "#8b8a80", "#aaa99f", "#c4c3ba", "#deddd6", "#f5f4ef"] },
+      "success-green": { "role": "tertiary", "displayName": "Local Success Green", "canonical": "#69da78", "tonalRamp": ["#102e16", "#1b5226", "#287737", "#399f4a", "#69da78", "#91e5a0", "#bcefc5", "#edfaef"] },
+      "caution-amber": { "role": "tertiary", "displayName": "Caution Amber", "canonical": "#ffd166", "tonalRamp": ["#33270b", "#624b13", "#94711e", "#c79a2b", "#ffd166", "#ffdf91", "#ffedbe", "#fff8e8"] },
+      "warning-soft": { "role": "tertiary", "displayName": "Soft Warning", "canonical": "#ffb29e", "tonalRamp": ["#382019", "#6a3b2f", "#9b5745", "#cd745e", "#ff9b81", "#ffb29e", "#ffd3c7", "#fff1ed"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Control-Bay Display", "purpose": "Short first-view task questions." },
+      "headline": { "displayName": "Handoff Headline", "purpose": "Dock prompts and decisive modal statements." },
+      "title": { "displayName": "Section Title", "purpose": "Library and work-area headings." },
+      "body": { "displayName": "Interface Body", "purpose": "Guidance, explanations, and control labels." },
+      "label": { "displayName": "Instrumentation Label", "purpose": "Formats, timers, steps, keycaps, and compact status." }
+    },
+    "shadows": [
+      { "name": "console-ambient", "value": "0 22px 70px rgba(0,0,0,.24)", "purpose": "Separate the primary recorder and readiness consoles from the page canvas." },
+      { "name": "signal-lift", "value": "0 14px 34px rgba(255,90,54,.18)", "purpose": "Give the recording action consequence without a glossy effect." },
+      { "name": "floating-rail", "value": "0 12px 26px rgba(0,0,0,.44)", "purpose": "Show compact controls sitting above another surface." },
+      { "name": "handoff-modal", "value": "0 30px 90px rgba(0,0,0,.55)", "purpose": "Focus the dock handoff above its dimmed context." },
+      { "name": "status-halo", "value": "0 0 0 4px color-mix(in srgb, currentColor 10%, transparent)", "purpose": "Expand tiny status lights without changing their footprint." }
+    ],
+    "motion": [
+      { "name": "state-fast", "value": "150ms ease", "purpose": "Hover and immediate button-state feedback." },
+      { "name": "control-standard", "value": "200ms ease", "purpose": "Toggle-track and thumb movement." },
+      { "name": "toast-rise", "value": "250ms ease", "purpose": "Short acknowledgement entering above fixed controls." },
+      { "name": "record-pulse", "value": "1200ms infinite", "purpose": "Active recording indicators only." },
+      { "name": "reduced-motion", "value": "0.01ms, one iteration", "purpose": "Collapse animation while preserving final state when reduced motion is requested." }
+    ],
+    "breakpoints": [
+      { "name": "single-column", "value": "860px" },
+      { "name": "mobile", "value": "600px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Record Button",
+      "kind": "button",
+      "refersTo": "button-record",
+      "description": "The single dominant action that begins capture.",
+      "html": "<button class=\"ds-record-button\"><span class=\"ds-record-dot\"></span><span>Start recording</span><kbd>R</kbd></button>",
+      "css": ".ds-record-button{width:100%;min-height:62px;border:0;border-radius:12px;padding:16px 18px;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--signal,#ff6a3d);color:#1b120f;font:700 16px/1.2 'Segoe UI Variable','Segoe UI',sans-serif;box-shadow:0 14px 34px rgba(255,90,54,.18);cursor:pointer;transition:background .15s ease,transform .1s ease}.ds-record-button:hover{background:#ff805b}.ds-record-button:active{transform:scale(.98)}.ds-record-button:focus-visible{outline:3px solid var(--cyan,#22c7d6);outline-offset:3px}.ds-record-dot{width:12px;height:12px;border-radius:50%;background:#40140a;box-shadow:0 0 0 5px rgba(64,20,10,.12)}.ds-record-button kbd{margin-left:auto;min-width:26px;padding:5px;border:1px solid rgba(27,18,15,.3);border-radius:6px;background:transparent;font:750 11px/1 ui-monospace,monospace}"
+    },
+    {
+      "name": "Source Tabs",
+      "kind": "nav",
+      "refersTo": "tab-default",
+      "description": "A slotted selector for Screen, Camera, and Overlay capture sources.",
+      "html": "<div class=\"ds-tabs\" role=\"tablist\" aria-label=\"Recording source\"><button class=\"ds-tab ds-active\" role=\"tab\" aria-selected=\"true\"><span class=\"ds-tab-icon\">▣</span><span><strong>Screen</strong><small>App or browser tab</small></span></button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\"><span class=\"ds-tab-icon\">●</span><span><strong>Camera</strong><small>Talking head</small></span></button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\"><span class=\"ds-tab-icon\">◇</span><span><strong>Overlay</strong><small>Camera on media</small></span></button></div>",
+      "css": ".ds-tabs{display:flex;gap:1px;padding:0;overflow:hidden;border-radius:12px;background:var(--line,#343832)}.ds-tab{flex:1;min-height:78px;padding:14px 16px;display:flex;align-items:center;gap:12px;border:0;border-radius:0;background:var(--console-raised,#232721);color:#c2c1b7;text-align:left;font:600 14px/1.2 'Segoe UI Variable','Segoe UI',sans-serif;cursor:pointer}.ds-tab:hover{background:#2a2e27}.ds-tab:focus-visible{outline:3px solid var(--cyan,#22c7d6);outline-offset:-3px}.ds-tab.ds-active{background:var(--paper,#f5f3ea);color:#171914}.ds-tab-icon{width:34px;height:34px;display:grid;place-items:center;border:1px solid currentColor;border-radius:8px}.ds-tab strong,.ds-tab small{display:block}.ds-tab small{margin-top:3px;font-size:11px;opacity:.68}@media(max-width:600px){.ds-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.ds-tab{min-height:74px;padding:11px 6px;flex-direction:column;justify-content:center;text-align:center}.ds-tab small{display:none}.ds-tab-icon{width:27px;height:27px}}"
+    },
+    {
+      "name": "Operational Toggle",
+      "kind": "input",
+      "refersTo": "button-console",
+      "description": "A labeled hardware-like switch for microphone, camera bubble, and countdown settings.",
+      "html": "<label class=\"ds-toggle\"><input type=\"checkbox\" checked><span class=\"ds-slider\"></span><span>Microphone</span></label>",
+      "css": ".ds-toggle{display:inline-flex;align-items:center;gap:8px;padding:9px 11px;border:1px solid var(--line,#343832);border-radius:9px;background:#20231e;color:#d4d3c9;font:500 13px/1.2 'Segoe UI Variable','Segoe UI',sans-serif;cursor:pointer;position:relative}.ds-toggle input{position:absolute;width:1px;height:1px;opacity:0}.ds-slider{width:32px;height:18px;border-radius:999px;background:#5a5f56;position:relative;transition:background .2s ease}.ds-slider:after{content:'';position:absolute;width:12px;height:12px;top:3px;left:3px;border-radius:50%;background:#fff;transition:left .2s ease}.ds-toggle input:checked+.ds-slider{background:var(--cyan,#22c7d6)}.ds-toggle input:checked+.ds-slider:after{left:17px;background:#0e1918}.ds-toggle:has(input:focus-visible){outline:3px solid var(--cyan,#22c7d6);outline-offset:3px}"
+    },
+    {
+      "name": "Capture Guidance",
+      "kind": "card",
+      "description": "Preventive guidance that blocks unsafe entire-screen capture before it becomes a recording failure.",
+      "html": "<div class=\"ds-guidance\"><span class=\"ds-guidance-icon\">!</span><p><strong>Choose one app window or browser tab.</strong> Entire Screen is blocked because it creates a mirror tunnel.</p></div>",
+      "css": ".ds-guidance{display:flex;align-items:flex-start;gap:11px;padding:13px 14px;border-radius:10px;background:#26271f;color:#c8c7bc;font:400 12.5px/1.48 'Segoe UI Variable','Segoe UI',sans-serif}.ds-guidance p{margin:0}.ds-guidance strong{color:#fff5d6}.ds-guidance-icon{flex:0 0 auto;width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:#ffd166;color:#181914;font-weight:900}"
+    },
+    {
+      "name": "Console Card",
+      "kind": "card",
+      "refersTo": "card-console",
+      "description": "The foundational container for recorder and desktop-readiness work areas.",
+      "html": "<section class=\"ds-console-card\"><span class=\"ds-badge\">MP4 READY</span><h2>Desktop control dock</h2><p>Keep pause, retake, stop, and annotation tools above the editor.</p></section>",
+      "css": ".ds-console-card{min-width:0;padding:24px;border-radius:16px;background:var(--console,#1a1d19);color:var(--paper,#f5f3ea);box-shadow:0 22px 70px rgba(0,0,0,.24);font-family:'Segoe UI Variable','Segoe UI',sans-serif}.ds-console-card h2{margin:18px 0 4px;font-size:20px;letter-spacing:-.02em}.ds-console-card p{max-width:56ch;margin:0;color:var(--mut,#aaa99f);font-size:14px;line-height:1.55}.ds-badge{display:inline-block;padding:6px 9px;border:1px solid #4f554c;border-radius:6px;color:#b7bab0;font:700 10px/1.1 ui-monospace,monospace;letter-spacing:.09em}.ds-console-card:focus-within{outline:3px solid var(--cyan,#22c7d6);outline-offset:3px}"
+    },
+    {
+      "name": "Compact Desktop Dock",
+      "kind": "custom",
+      "description": "The always-on-top, compact-first rail for recording-critical controls.",
+      "html": "<div class=\"ds-dock\"><span class=\"ds-live-dot\"></span><strong class=\"ds-timer\">0:00</strong><span class=\"ds-spacer\"></span><button class=\"ds-annotate\">Annotate</button><button>Pause</button><button class=\"ds-retake\">Retake</button><button class=\"ds-stop\">Stop</button></div>",
+      "css": ".ds-dock{width:min(430px,100%);min-height:58px;padding:8px;display:flex;align-items:center;gap:6px;background:#171a16;color:#f5f3ea;font-family:'Segoe UI Variable','Segoe UI',sans-serif}.ds-live-dot{width:10px;height:10px;flex-shrink:0;border-radius:50%;background:#ff5a36;box-shadow:0 0 0 5px rgba(255,90,54,.12);animation:ds-pulse 1.2s infinite}.ds-timer{margin-left:4px;font-size:13px;font-variant-numeric:tabular-nums}.ds-spacer{flex:1}.ds-dock button{border:0;border-radius:8px;padding:9px 11px;background:#2a2f28;color:#f5f3ea;font:650 12px/1 'Segoe UI Variable','Segoe UI',sans-serif;cursor:pointer}.ds-dock button:hover{background:#363c33}.ds-dock button:focus-visible{outline:3px solid #22c7d6;outline-offset:2px}.ds-dock .ds-annotate{background:#22c7d6;color:#101614}.ds-dock .ds-retake{background:#3a3e36}.ds-dock .ds-stop{background:#ff5a36;color:#1b120f;font-weight:750}@keyframes ds-pulse{50%{opacity:.2}}@media(prefers-reduced-motion:reduce){.ds-live-dot{animation:none}}"
+    },
+    {
+      "name": "Annotation Tool",
+      "kind": "button",
+      "refersTo": "button-console",
+      "description": "A compact icon control used in the expanded studio or dock palette.",
+      "html": "<button class=\"ds-tool ds-active\" title=\"Magic pencil\" aria-label=\"Magic pencil, selected\">✏️</button>",
+      "css": ".ds-tool{width:40px;height:40px;border:0;border-radius:8px;background:#2a2f28;color:#f5f3ea;font-size:17px;cursor:pointer}.ds-tool:hover{background:#363c33}.ds-tool.ds-active{background:var(--cyan,#22c7d6);color:#101614}.ds-tool:focus-visible{outline:3px solid var(--cyan,#22c7d6);outline-offset:2px}"
+    },
+    {
+      "name": "Dark Note Field",
+      "kind": "input",
+      "refersTo": "field-dark",
+      "description": "A focused note entry that remains visible over the recording canvas.",
+      "html": "<input class=\"ds-note-field\" type=\"text\" placeholder=\"Type your note, then Enter…\" maxlength=\"120\">",
+      "css": ".ds-note-field{width:100%;border:2px solid var(--cyan,#22c7d6);border-radius:8px;background:#22261f;color:#fff;padding:7px 9px;font:400 13px/1.3 'Segoe UI Variable','Segoe UI',sans-serif}.ds-note-field::placeholder{color:#aaa99f}.ds-note-field:hover{background:#282d25}.ds-note-field:focus-visible{outline:3px solid var(--cyan,#22c7d6);outline-offset:2px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Creator's Control Bay",
+    "overview": "MaherCast feels like a compact piece of dependable recording hardware translated into a browser: ink-black console surfaces, warm high-contrast copy, signal lights, tight rails, and controls whose labels remain understandable under pressure. The interface is purposeful rather than cinematic. Its strongest visual moments identify recording commitment, source state, and the safe path back to the creator's work.\n\nThe system protects working space. Desktop screens use an asymmetric capture bay and readiness rail instead of a generic centered card, while active recording moves essential controls into a compact, always-on-top dock where the browser permits it. Advanced annotation surfaces expand only when requested. On mobile, the same world simplifies to a single column and preserves camera and overlay capture without pretending desktop screen-capture capabilities exist.",
+    "keyCharacteristics": [
+      "Warm industrial darkness with paper-like active reversals.",
+      "Signal orange reserved for recording, stopping, and limited-capability attention.",
+      "Operational cyan for selection, focus, annotation tools, and live interaction.",
+      "Labeled, hardware-like controls with compact monospace instrumentation.",
+      "A compact-first desktop dock designed to sit beside content, not over it."
+    ],
+    "rules": [
+      { "name": "The Two-Signal Rule", "body": "Orange communicates recording consequence; cyan communicates operation. Do not swap them or use both as ambient decoration.", "section": "colors" },
+      { "name": "The Local-State Rule", "body": "Green is evidence of supported or locally stored state, not a generic brand accent.", "section": "colors" },
+      { "name": "The Instrumentation Rule", "body": "Use monospace only for timers, step numerals, keycaps, formats, and compact status readouts.", "section": "typography" },
+      { "name": "The No-Occlusion Rule", "body": "The compact desktop dock starts at approximately 430×66px and carries timer, annotate, pause, retake, and stop. Preview and tool palettes stay collapsed until requested; selecting a drawing tool expands them automatically. The site may ask the user to place the browser-controlled window on a quiet screen edge, but must never imply it can position that window itself.", "section": "layout" },
+      { "name": "The Exact-Canvas Rule", "body": "Expanded dock previews preserve the recording's aspect ratio with no letterbox interaction zone, so pointer coordinates land in the same place in the output.", "section": "layout" },
+      { "name": "The Tonal-First Rule", "body": "Use background steps and one-pixel borders for nested controls; add a shadow only when a surface must read as physically above another surface.", "section": "elevation" },
+      { "name": "The Honest-Silhouette Rule", "body": "A control's shape must describe its behavior: circles for signals and radial choices, compact rectangles for actions, pills only for continuous toggles or chips.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do keep record, pause, retake, and stop reachable before revealing advanced tools.",
+      "Do use orange for recording consequence and cyan for operation, selection, and keyboard focus.",
+      "Do pair icons and colored status lights with persistent text or accessible labels.",
+      "Do preserve on-page controls as the baseline and treat the floating dock as a capability enhancement.",
+      "Do maintain the compact-first dock and ask users to place it beside—not over—the application they are presenting.",
+      "Do preserve camera and overlay modes when mobile browsers cannot capture a desktop screen."
+    ],
+    "donts": [
+      "Don't collapse the product into a generic centered recorder card or marketing hero.",
+      "Don't promise automatic placement of the always-on-top dock; browsers do not grant that control.",
+      "Don't allow “Entire Screen” capture to create a recursive mirror tunnel; direct users to a single app window or browser tab.",
+      "Don't make advanced annotation tools permanently consume the creator's canvas.",
+      "Don't use blur, glossy gradients, or decorative glow as a substitute for the tonal console hierarchy.",
+      "Don't hide keyboard focus, depend on color alone, or leave unsupported actions enabled without an alternative."
+    ]
+  }
+}

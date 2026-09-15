@@ -12,6 +12,7 @@ const state = {
   pausedAt: 0,
   timerInt: null,
   current: null, // recording open in the player modal
+  captureController: null,
 };
 
 const supportsScreen = !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
@@ -111,14 +112,18 @@ async function makeThumb(blob) {
 
 /* ---------- mode tabs ---------- */
 const hints = {
-  screen: 'Records your screen — switch apps, everything is captured.',
+  screen: 'Records your screen. Switch apps; everything in the selected source is captured.',
   camera: 'Records your camera and mic. Perfect for talking-head videos.',
   overlay: 'Pick a photo or video for the background, then talk in a bubble on top — perfect for Reels-style process videos.',
 };
 
 function setMode(mode) {
   state.mode = mode;
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+  document.querySelectorAll('.tab').forEach(t => {
+    const selected = t.dataset.mode === mode;
+    t.classList.toggle('active', selected);
+    t.setAttribute('aria-selected', String(selected));
+  });
   $('modeHint').textContent = hints[mode];
   $('bubbleToggleWrap').style.display = mode === 'screen' && supportsScreen ? '' : 'none';
   $('overlaySetup').hidden = mode !== 'overlay';
@@ -135,6 +140,24 @@ if (!supportsScreen) {
   $('unsupportedMsg').hidden = false;
   setMode('camera');
 }
+
+function updateDesktopReadiness() {
+  const light = $('dockStatusLight');
+  const text = $('dockStatusText');
+  if (!supportsScreen) {
+    light.classList.add('limited');
+    text.textContent = 'Screen capture is unavailable; camera and overlay are ready.';
+    return;
+  }
+  if ('documentPictureInPicture' in window) {
+    light.classList.add('ready');
+    text.textContent = 'Ready — floating controls are supported in this browser.';
+    return;
+  }
+  light.classList.add('limited');
+  text.textContent = 'Limited — record on-page, or use current Chrome or Edge for floating controls.';
+}
+updateDesktopReadiness();
 
 /* ---------- overlay mode: background photo/video picker ---------- */
 $('overlayFile').addEventListener('change', async () => {
@@ -176,14 +199,25 @@ async function countdown() {
 async function getStream() {
   const wantMic = $('micToggle').checked;
   if (state.mode === 'screen') {
-    const screen = await navigator.mediaDevices.getDisplayMedia({
+    const controller = typeof CaptureController !== 'undefined' ? new CaptureController() : null;
+    const displayOptions = {
       video: { frameRate: 30 },
       audio: true, // system/tab audio where the browser allows it
       selfBrowserSurface: 'exclude',  // keep MaherCast's own tab out of the picker
       surfaceSwitching: 'include',    // let the user switch shared tab mid-recording
       systemAudio: 'include',
-    });
+    };
+    if (controller) displayOptions.controller = controller;
+    const screen = await navigator.mediaDevices.getDisplayMedia(displayOptions);
     const surface = screen.getVideoTracks()[0].getSettings().displaySurface;
+    // Browsers commonly focus the selected editing window as soon as capture
+    // starts. That used to put MaherCast's floating-dock prompt behind the
+    // editor before the creator could click it. Keep MaherCast focused long
+    // enough to complete the dock handoff; the creator then returns to work.
+    if (controller && surface !== 'monitor') {
+      try { controller.setFocusBehavior('no-focus-change'); } catch {}
+      state.captureController = controller;
+    }
     if (surface === 'monitor') {
       // "Entire screen" captures MaherCast's own browser window too — since that
       // window shows a live mirror of the capture, it nests inside itself forever.
@@ -312,8 +346,6 @@ async function startRecording() {
     }
   }
 
-  if ($('countToggle').checked) await countdown();
-
   // Everything (background/screen/camera + bubble + annotations + captions)
   // is composited onto the Studio canvas, and the canvas is what gets recorded.
   const canvasStream = await Studio.start({
@@ -327,9 +359,11 @@ async function startRecording() {
   state.canvasStream = canvasStream;
   state.output = output;
 
-  if (state.mode === 'screen' && 'documentPictureInPicture' in window) {
-    $('popoutPrompt').hidden = false;
-  }
+  // Finish the desktop control handoff before the countdown and encoder begin.
+  // This prevents setup time and dead air from becoming part of the take.
+  if (state.mode === 'screen' && 'documentPictureInPicture' in window) await offerFloatingDock();
+
+  if ($('countToggle').checked) await countdown();
 
   await startEncoding();
 
@@ -338,6 +372,19 @@ async function startRecording() {
 
   $('recBar').hidden = false;
   $('recordBtn').disabled = true;
+}
+
+function offerFloatingDock() {
+  $('popoutPrompt').hidden = false;
+  return new Promise(resolve => { state.resolveDockPrompt = resolve; });
+}
+
+function finishDockPrompt() {
+  $('popoutPrompt').hidden = true;
+  if (state.resolveDockPrompt) {
+    state.resolveDockPrompt();
+    state.resolveDockPrompt = null;
+  }
 }
 
 // Starts (or restarts, for Retake) the actual encoder against whatever
@@ -457,6 +504,7 @@ async function finishRecording(blob, mime) {
   Studio.stop();
   state.streams.forEach(s => s.getTracks().forEach(t => t.stop()));
   state.streams = [];
+  state.captureController = null;
   if (state.audioCtx) { state.audioCtx.close().catch(() => {}); state.audioCtx = null; }
   if (state.overlayEl) { state.overlayEl.pause(); state.overlayEl.src = ''; state.overlayEl = null; }
   if (state.overlayObjectUrl) { URL.revokeObjectURL(state.overlayObjectUrl); state.overlayObjectUrl = null; }
@@ -670,9 +718,29 @@ $('deleteBtn').addEventListener('click', async () => {
 $('esCancel').addEventListener('click', () => { $('entireScreenModal').hidden = true; });
 $('esRetry').addEventListener('click', () => { $('entireScreenModal').hidden = true; startRecording(); });
 
-$('popoutPromptGo').addEventListener('click', () => {
-  $('popoutPrompt').hidden = true;
-  Studio.openPanel(); // a direct click, so the browser allows the pop-out window
+$('popoutPromptGo').addEventListener('click', async () => {
+  const btn = $('popoutPromptGo');
+  btn.disabled = true;
+  btn.textContent = 'Opening controls…';
+  try {
+    await Studio.openPanel();
+    finishDockPrompt();
+    btn.disabled = false;
+    btn.textContent = 'Open floating controls';
+  } catch {
+    btn.disabled = false;
+    btn.textContent = 'Try opening controls again';
+    toast('Floating controls were blocked. Allow pop-ups, then try again.', 4200);
+  } // a direct click keeps the browser's user-activation permission intact
 });
-$('popoutPromptDismiss').addEventListener('click', () => { $('popoutPrompt').hidden = true; });
+$('popoutPromptDismiss').addEventListener('click', finishDockPrompt);
+document.addEventListener('keydown', event => {
+  if (event.key.toLowerCase() !== 'r' || event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
+  const target = event.target;
+  if (target && (target.matches('input, textarea, select') || target.isContentEditable)) return;
+  if (!$('recordBtn').disabled && $('popoutPrompt').hidden && $('playerModal').hidden && $('editor').hidden) {
+    event.preventDefault();
+    void startRecording();
+  }
+});
 openDB().then(renderLibrary).catch(e => toast('Storage error: ' + e.message));

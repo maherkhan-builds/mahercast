@@ -37,7 +37,7 @@ MaherCast is a complete recording studio — screen or camera capture, **live an
 | 🖥️ Screen + 🤳 camera recording | Capture your screen with mic/system audio, or record talking-head video on any device — including iPhone |
 | 🎬 Overlay mode | Reels-style process videos: a background photo/video with a live camera bubble talking on top — no screen capture needed, works on iPhone |
 | 🪄 Live studio tools | Glowing magic pencil, arrows/shapes, sticky notes & speech bubbles, focus spotlight, and live captions — all composited straight into the recording as you talk |
-| 📌 Pop-out presenter panel | Floats your tools + face bubble in an always-on-top window that follows you across every app — prompted automatically the moment Screen recording starts. Opens as a slim, tools-only footer bar by default; the drawing preview only appears when you pick a tool that needs it (pencil, shapes, notes, spotlight), and you can show/hide it any time with ⌄/⌃ |
+| 📌 Desktop control dock | Keeps MaherCast focused after you choose an editing window, then hands off to a compact always-on-top control rail with timer, annotations, pause, retake, and stop. The preview expands only when a drawing tool needs it, leaving editing tabs visible. |
 | ⏯️ Recording controls | 3-2-1 countdown, pause/resume, live timer, and one-tap Retake that discards a bad take and starts over instantly |
 | ✂️ Built-in editor | Trim the start/end, add attention-zooms that smoothly zoom in and hold, layer background music with independent volume + auto fade-out |
 | 💾 Real `.mp4` export | Encodes live via WebCodecs to a genuine H.264/AAC `.mp4` — opens cleanly in CapCut, WhatsApp, Premiere, DaVinci, and iPhone with no conversion |
@@ -71,7 +71,7 @@ MaherCast is a complete recording studio — screen or camera capture, **live an
                               └──────────────────┘
 ```
 
-Recordings encode straight to a real, standard `.mp4` — built live as you record via [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) and muxed flat with [mp4-muxer](https://github.com/Vanilagy/mp4-muxer), the same structure a phone camera produces, so Download is instant with no export wait. If your browser doesn't support WebCodecs, recording falls back to `.webm` automatically. Because no browser is allowed to paint directly onto your desktop, live annotations are drawn on a pixel-accurate preview in the pop-out presenter panel — whatever you draw there lands in the same spot in the final video. iOS doesn't allow screen capture in any browser (an Apple restriction), so MaherCast switches to camera mode automatically there.
+Recordings encode straight to a real, standard `.mp4` — built live as you record via [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) and muxed flat with [mp4-muxer](https://github.com/Vanilagy/mp4-muxer), the same structure a phone camera produces, so Download is instant with no export wait. If your browser doesn't support WebCodecs, recording falls back to `.webm` automatically. Because no browser is allowed to paint directly onto your desktop, live annotations are drawn on a pixel-accurate preview in the pop-out presenter panel — whatever you draw there lands in the same spot in the final video. The desktop handoff and its browser limitations are documented in [DESKTOP-UX.md](DESKTOP-UX.md). iOS doesn't allow screen capture in any browser (an Apple restriction), so MaherCast switches to camera mode automatically there.
 
 ## 🛠️ Built with
 
@@ -87,9 +87,13 @@ The local server unlocks share links, watch pages, reactions, and comments — r
 git clone https://github.com/maherkhan-builds/mahercast.git
 cd mahercast
 
-# One-time: create an HTTPS certificate (browsers require HTTPS for screen/camera capture)
-openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 825 -nodes -subj "/CN=mahercast"
+node server.js
+```
 
+Desktop recording starts immediately at `http://localhost:8080`. To use MaherCast from a phone on the same Wi-Fi, create a one-time HTTPS certificate first (mobile browsers require a secure context for camera access):
+
+```bash
+openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 825 -nodes -subj "/CN=mahercast"
 node server.js
 ```
 
@@ -101,7 +105,7 @@ Zero dependencies. Just Node.js and a browser.
 
 ## 🔎 Keywords
 
-`screen-recorder` · `loom-alternative` · `privacy-first` · `local-first` · `pwa` · `screen-recording` · `video-annotation` · `web-audio-api` · `mediarecorder` · `claude-code` · `nodejs` · `webcodecs` · `share-links`
+`screen-recorder` · `loom-alternative` · `privacy-first` · `local-first` · `pwa` · `screen-recording` · `video-annotation` · `web-audio-api` · `mediarecorder` · `openai-astra` · `nodejs` · `webcodecs` · `share-links`
 
 ---
 
@@ -114,7 +118,7 @@ Built by **[Maher Khan](https://digimarketingstudio.com)** — AI educator, no-c
 - 🛠️ 28+ AI-powered tools built · 20,000+ professionals trained
 - 💼 [LinkedIn](https://www.linkedin.com/in/mahersocialmediastrategistus) · [GitHub](https://github.com/maherkhan-builds) · [Instagram](https://www.instagram.com/social.icm) · [Book a call](https://calendly.com/digitalpoles/let-s-meet-up)
 
-Part of the **Maher Magic** series of AI & web apps. ✨ Designed and built end-to-end with **[Claude Code](https://claude.com/claude-code)** (Anthropic) — from the MediaRecorder capture pipeline and live annotation compositor to the zero-dependency Node.js share server.
+Part of the **Maher Magic** series of AI & web apps. ✨ Designed and rebuilt with **OpenAI Astra**, including the desktop capture handoff, compact control dock, accessibility pass, mobile refinement, and the new desktop-first interface.
 
 ## 📄 License
 
