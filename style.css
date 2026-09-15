@@ -699,6 +699,21 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
 }
 .brand-mark svg { width: 23px; fill: #171411; }
 .app-header > p { color: var(--mut); font-size: 13px; }
+.astra-credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  color: #d9fff9;
+  background: rgba(89, 229, 210, .09);
+  border: 1px solid rgba(89, 229, 210, .28);
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+.astra-credit span { color: var(--cyan); }
+.astra-credit strong { color: var(--paper); font-weight: 700; }
 .privacy-state {
   margin-left: auto;
   display: flex;
@@ -980,6 +995,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
 @media (max-width: 860px) {
   .app-header { padding-inline: 18px; }
   .app-header > p { display: none; }
+  .astra-credit { margin-left: auto; }
+  .privacy-state { margin-left: 0; }
   .app-shell { grid-template-columns: 1fr; padding: 24px 18px; }
   .desktop-readiness { order: 2; }
   .library { grid-column: 1; order: 3; }
@@ -987,6 +1004,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
 @media (max-width: 600px) {
   body { padding-bottom: 84px; }
   .app-header { padding-top: max(18px, env(safe-area-inset-top)); }
+  .astra-credit { font-size: 0; padding: 7px 9px; }
+  .astra-credit::after { content: 'Astra rebuild'; font-size: 11px; }
+  .astra-credit strong { display: none; }
   .privacy-state { font-size: 0; }
   .privacy-state::after { content: 'Local'; font-size: 11px; }
   .app-shell { padding: 18px 12px; gap: 14px; }

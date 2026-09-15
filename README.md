@@ -11,6 +11,7 @@
 ![PWA](https://img.shields.io/badge/PWA-19151F?style=for-the-badge&logo=pwa&logoColor=5A0FC8)
 ![License](https://img.shields.io/badge/License-MIT-19151F?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Live-A78BFA?style=for-the-badge)
+![Rebuilt with OpenAI Astra](https://img.shields.io/badge/Rebuilt_with-OpenAI_Astra-59E5D2?style=for-the-badge)
 
 [Live Demo](https://maherkhan-builds.github.io/mahercast/) · [Features](#-what-it-can-do) · [Quick Start](#-run-it-locally) · [How It Works](#-how-it-works)
 
